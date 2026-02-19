@@ -260,22 +260,43 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
 
     // Initialize Data with Lazy State to avoid setState in useEffect
     const [applications, setApplications] = useState<ApplicationForm[]>(() => {
-        const stored = localStorage.getItem('applications');
-        if (stored) return JSON.parse(stored);
+        try {
+            const stored = localStorage.getItem('applications');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) return parsed;
+            }
+        } catch (e) {
+            console.error("Error parsing applications:", e);
+        }
         localStorage.setItem('applications', JSON.stringify(MOCK_APPLICATIONS));
         return MOCK_APPLICATIONS;
     });
 
     const [stories, setStories] = useState<Story[]>(() => {
-        const stored = localStorage.getItem('stories');
-        if (stored) return JSON.parse(stored);
+        try {
+            const stored = localStorage.getItem('stories');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) return parsed;
+            }
+        } catch (e) {
+            console.error("Error parsing stories:", e);
+        }
         localStorage.setItem('stories', JSON.stringify(DEFAULT_STORIES));
         return DEFAULT_STORIES;
     });
 
     const [programs, setPrograms] = useState<Program[]>(() => {
-        const stored = localStorage.getItem('programs');
-        if (stored) return JSON.parse(stored);
+        try {
+            const stored = localStorage.getItem('programs');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) return parsed;
+            }
+        } catch (e) {
+            console.error("Error parsing programs:", e);
+        }
         localStorage.setItem('programs', JSON.stringify(DEFAULT_PROGRAMS));
         return DEFAULT_PROGRAMS;
     });
@@ -301,8 +322,16 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
 
     // Settings States
     const [heroForm, setHeroForm] = useState<HeroContent>(() => {
-        const stored = localStorage.getItem('heroContent');
-        return stored ? JSON.parse(stored) : {
+        try {
+            const stored = localStorage.getItem('heroContent');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (parsed && typeof parsed === 'object') return parsed;
+            }
+        } catch (e) {
+            console.error("Error parsing hero content:", e);
+        }
+        return {
             title: "Restoring Hope, Changing Lives in Kenya.",
             subtitle: "We provide urgent medical care, education scholarships, and business funding to the most vulnerable members of our community.",
             backgroundImageUrl: "https://picsum.photos/id/1015/1920/1080"
@@ -310,8 +339,16 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
     });
 
     const [aboutForm, setAboutForm] = useState<AboutContent>(() => {
-        const stored = localStorage.getItem('aboutContent');
-        return stored ? JSON.parse(stored) : {
+        try {
+            const stored = localStorage.getItem('aboutContent');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (parsed && typeof parsed === 'object') return parsed;
+            }
+        } catch (e) {
+            console.error("Error parsing about content:", e);
+        }
+        return {
             heroTitle: "About Tushinde Charity",
             heroSubtitle: "Driven by compassion, fueled by integrity, and sustained by the community.",
             missionTitle: "Our Mission & Vision",
@@ -322,8 +359,16 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
     });
 
     const [contactForm, setContactForm] = useState<ContactContent>(() => {
-        const stored = localStorage.getItem('contactContent');
-        return stored ? JSON.parse(stored) : {
+        try {
+            const stored = localStorage.getItem('contactContent');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (parsed && typeof parsed === 'object') return parsed;
+            }
+        } catch (e) {
+            console.error("Error parsing contact content:", e);
+        }
+        return {
             heroTitle: "Get in Touch",
             heroSubtitle: "Have questions about our programs or want to partner with us?",
             address: "Tushinde House, 4th Floor\nWestlands Road, Nairobi, Kenya",
@@ -350,7 +395,12 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
     const handleNavClick = (tab: Tab) => {
         const url = new URL(window.location.href);
         url.searchParams.set('tab', tab);
-        window.history.pushState({}, '', url.toString());
+        try {
+            // Use relative URL query string to avoid SecurityError
+            window.history.pushState({}, '', '?' + url.searchParams.toString());
+        } catch (e) {
+            console.warn("History update failed:", e);
+        }
         setActiveTab(tab);
         setIsMobileMenuOpen(false);
     };

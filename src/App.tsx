@@ -56,7 +56,16 @@ function App() {
 
     url.searchParams.set('page', page);
 
-    window.history.pushState({}, '', url.toString());
+    try {
+      // Use relative URL query string to avoid SecurityError in some environments
+      window.history.pushState({}, '', '?' + url.searchParams.toString());
+    } catch (e) {
+      console.warn("Navigation state update failed (likely due to sandbox):", e);
+    }
+
+    // Dispatch a manual popstate event so components (like Stories) listening for URL changes
+    // update their local state (e.g., closing a modal).
+    window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
 
     setCurrentPage(page);
     setIsStoryOpen(false);

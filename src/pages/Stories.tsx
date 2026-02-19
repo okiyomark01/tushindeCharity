@@ -233,6 +233,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
         if (stored) {
             try {
                 const parsed = JSON.parse(stored);
+                if (!Array.isArray(parsed)) throw new Error("Not an array");
                 // Validate and migrate data
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 return parsed.map((s: any, i: number) => ({
@@ -313,7 +314,14 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
             url.searchParams.delete('story');
         }
 
-        window.history.pushState({}, '', url.toString());
+        try {
+            // Use relative URL query string to avoid SecurityError
+            window.history.pushState({}, '', '?' + url.searchParams.toString());
+        } catch (e) {
+            console.warn("History update failed:", e);
+        }
+        // Dispatch popstate event to notify other listeners
+        window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
 
         setSelectedStoryId(id);
         setCurrentSlide(0);
@@ -1056,7 +1064,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
         <div className="bg-gray-50 py-0 sm:py-12 relative">
             <div className="w-full px-0 sm:px-6 lg:px-8">
                 <div className="text-center mb-2 sm:mb-12 py-3 sm:py-0 px-4 sm:px-0">
-                    <h1 className="text-xl sm:text-4xl font-serif font-bold text-gray-900 mb-2 sm:mb-4 leading-tight">{title || "Community Stories"}</h1>
+                    <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 mb-2 sm:mb-4 leading-tight">{title || "Community Stories"}</h1>
                     {showDonateButton ? (
                         <div className="mt-3 sm:mt-6 flex justify-center">
                             <button
