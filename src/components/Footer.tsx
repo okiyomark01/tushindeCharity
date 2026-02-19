@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Page } from '../types';
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 
