@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Heart, MessageCircle, Send, PlayCircle, ArrowLeft, MapPin, Calendar, User, Share2, X, ChevronLeft, ChevronRight, HeartHandshake, ArrowRight, Facebook, Instagram, Link as LinkIcon, Check, Copy } from 'lucide-react';
 import { type Story, type Comment, Page } from '../types';
 
@@ -14,6 +14,8 @@ const TikTokLogo = ({ className }: { className?: string }) => (
         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
     </svg>
 );
+
+const REACTION_EMOJIS = ['❤️‍🩹', '🙏', '💐', '💚', '✨', '👏'];
 
 const DEFAULT_STORIES: Story[] = [
     {
@@ -37,7 +39,13 @@ const DEFAULT_STORIES: Story[] = [
         raised: 15000,
         goal: 50000,
         category: 'Business',
-        donorCount: 42
+        donorCount: 42,
+        recentDonors: [
+            { name: "Sarah M.", amount: 500 },
+            { name: "John K.", amount: 1000 },
+            { name: "Anonymous", amount: 200 },
+            { name: "Peter W.", amount: 1500 },
+        ]
     },
     {
         id: '2',
@@ -55,7 +63,13 @@ const DEFAULT_STORIES: Story[] = [
         raised: 450000,
         goal: 600000,
         category: 'Community',
-        donorCount: 315
+        donorCount: 315,
+        recentDonors: [
+            { name: "Global Partners", amount: 50000 },
+            { name: "Anonymous", amount: 5000 },
+            { name: "Mary J.", amount: 2500 },
+            { name: "David L.", amount: 1000 },
+        ]
     },
     {
         id: '3',
@@ -71,7 +85,12 @@ const DEFAULT_STORIES: Story[] = [
         raised: 35000,
         goal: 80000,
         category: 'Medical',
-        donorCount: 56
+        donorCount: 56,
+        recentDonors: [
+            { name: "Team Cheza", amount: 10000 },
+            { name: "Anonymous", amount: 500 },
+            { name: "Grace O.", amount: 1000 },
+        ]
     },
     {
         id: '4',
@@ -87,7 +106,13 @@ const DEFAULT_STORIES: Story[] = [
         raised: 28000,
         goal: 80000,
         category: 'Education',
-        donorCount: 89
+        donorCount: 89,
+        recentDonors: [
+            { name: "Education First", amount: 5000 },
+            { name: "Ali B.", amount: 2000 },
+            { name: "Anonymous", amount: 500 },
+            { name: "Zara Y.", amount: 1500 },
+        ]
     },
     {
         id: '5',
@@ -103,7 +128,12 @@ const DEFAULT_STORIES: Story[] = [
         raised: 15000,
         goal: 100000,
         category: 'Emergency',
-        donorCount: 25
+        donorCount: 25,
+        recentDonors: [
+            { name: "Neighborhood Watch", amount: 5000 },
+            { name: "Anonymous", amount: 200 },
+            { name: "Pastor John", amount: 1000 },
+        ]
     },
     {
         id: '6',
@@ -119,7 +149,12 @@ const DEFAULT_STORIES: Story[] = [
         raised: 12000,
         goal: 40000,
         category: 'Business',
-        donorCount: 18
+        donorCount: 18,
+        recentDonors: [
+            { name: "AgriSupport", amount: 2500 },
+            { name: "Anonymous", amount: 100 },
+            { name: "Tom M.", amount: 500 },
+        ]
     },
     {
         id: '7',
@@ -135,27 +170,99 @@ const DEFAULT_STORIES: Story[] = [
         raised: 85000,
         goal: 150000,
         category: 'Emergency',
-        donorCount: 112
+        donorCount: 112,
+        recentDonors: [
+            { name: "Relief Corp", amount: 10000 },
+            { name: "Anonymous", amount: 500 },
+            { name: "Esther K.", amount: 2000 },
+            { name: "Mike T.", amount: 1000 },
+        ]
     }
 ];
+
+// Helper to get story ID from URL
+const getStoryIdFromUrl = () => {
+    if (typeof window === 'undefined') return null;
+    const params = new URLSearchParams(window.location.search);
+    return params.get('story');
+};
+
+// Helper Component for cycling donors
+const DonorTicker = ({ donors }: { donors?: { name: string; amount: number }[] }) => {
+    const [index, setIndex] = useState(0);
+    const [fade, setFade] = useState(true);
+
+    useEffect(() => {
+        if (!donors || donors.length <= 1) return;
+        const interval = setInterval(() => {
+            setFade(false); // Start fade out
+            setTimeout(() => {
+                setIndex((prev) => (prev + 1) % donors.length);
+                setFade(true); // Start fade in
+            }, 300); // Wait for fade out
+        }, 3000); // Change every 3 seconds
+        return () => clearInterval(interval);
+    }, [donors]);
+
+    if (!donors || donors.length === 0) return <span>Be the first to donate</span>;
+
+    const current = donors[index];
+
+    // Safely handle potential missing data in current
+    if (!current) return <span>Be the first to donate</span>;
+
+    return (
+        <span className={`transition-opacity duration-300 inline-block ${fade ? 'opacity-100' : 'opacity-0'}`}>
+            <span className="font-bold text-gray-900">{current.name || 'Anonymous'}</span> donated KES {(current.amount || 0).toLocaleString()}
+        </span>
+    );
+};
 
 interface StoriesProps {
     setPage?: (page: Page) => void;
     limit?: number;
     title?: string;
     showDonateButton?: boolean;
+    onStoryStateChange?: (isOpen: boolean) => void;
 }
 
-export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDonateButton }) => {
+export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDonateButton, onStoryStateChange }) => {
     // Initialize state lazily to avoid setState in useEffect
     const [stories, setStories] = useState<Story[]>(() => {
         const stored = localStorage.getItem('stories');
-        return stored ? JSON.parse(stored) : DEFAULT_STORIES;
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                // Validate and migrate data
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                return parsed.map((s: any, i: number) => ({
+                    ...s,
+                    // Ensure required fields exist, falling back to defaults if data is corrupted/old
+                    // If raised is 0 or missing, give it a random meaningful start value so live updates look good
+                    raised: (typeof s.raised === 'number' && s.raised > 0) ? s.raised : Math.floor(Math.random() * 20000) + 5000,
+                    goal: typeof s.goal === 'number' ? s.goal : 100000,
+                    recentDonors: s.recentDonors || DEFAULT_STORIES[i % DEFAULT_STORIES.length]?.recentDonors || []
+                }));
+            } catch (e) {
+                console.error("Failed to parse stories from local storage", e);
+                return DEFAULT_STORIES;
+            }
+        }
+        return DEFAULT_STORIES;
     });
 
     const [commentInput, setCommentInput] = useState<{ [key: string]: string }>({});
-    const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
+    const [selectedStoryId, setSelectedStoryId] = useState<string | null>(getStoryIdFromUrl());
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+    const [showReactions, setShowReactions] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [showStickyFooter, setShowStickyFooter] = useState(false);
+
+    // Carousel State
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const reactionsRef = useRef<HTMLDivElement>(null); // Ref for reaction tray
+    const topButtonsRef = useRef<HTMLDivElement>(null); // Ref for the top mobile buttons to track visibility
+    const [currentSlide, setCurrentSlide] = useState(0);
 
     // Share Modal State
     const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -169,8 +276,140 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
         }
     }, []);
 
+    // Listen for browser navigation (Back/Forward) specifically for story ID
+    useEffect(() => {
+        const handlePopState = () => {
+            const storyId = getStoryIdFromUrl();
+            if (storyId !== selectedStoryId) {
+                if (storyId) {
+                    // Opening new story (or forward)
+                    setSelectedStoryId(storyId);
+                } else {
+                    // Closing story (back button)
+                    setSelectedStoryId(null);
+                    setCurrentSlide(0);
+                    setShowReactions(false);
+                    setIsExpanded(false);
+                    setShowStickyFooter(false);
+                }
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [selectedStoryId]);
+
+    // Notify parent about story open/close state
+    useEffect(() => {
+        onStoryStateChange?.(!!selectedStoryId);
+    }, [selectedStoryId, onStoryStateChange]);
+
+    // Consolidate story selection logic to update state AND push history
+    const handleStorySelection = (id: string | null) => {
+        const url = new URL(window.location.href);
+        if (id) {
+            url.searchParams.set('story', id);
+        } else {
+            url.searchParams.delete('story');
+        }
+
+        window.history.pushState({}, '', url.toString());
+
+        setSelectedStoryId(id);
+        setCurrentSlide(0);
+        setShowReactions(false);
+        setIsExpanded(false);
+        setShowStickyFooter(false);
+    };
+
+    // Reset Scroll on story change (Side effect only)
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollLeft = 0;
+        }
+        // State resets moved to handleStorySelection to prevent cascading render warning
+    }, [selectedStoryId]);
+
+    // Close reactions when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (showReactions && reactionsRef.current && !reactionsRef.current.contains(event.target as Node)) {
+                setShowReactions(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showReactions]);
+
+    // Track intersection of top mobile buttons to show/hide sticky footer
+    useEffect(() => {
+        if (!selectedStoryId) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                // Show sticky footer if the original buttons are NOT visible
+                // AND they have scrolled up above the viewport (top < 0).
+                if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+                    setShowStickyFooter(true);
+                } else {
+                    setShowStickyFooter(false);
+                }
+            },
+            { threshold: 0 }
+        );
+
+        if (topButtonsRef.current) {
+            observer.observe(topButtonsRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [selectedStoryId]);
+
     const activeStory = selectedStoryId ? stories.find(s => s.id === selectedStoryId) : null;
     const displayedStories = limit ? stories.slice(0, limit) : stories;
+
+    // Carousel Media Preparation
+    const allMedia = activeStory ? [
+        { type: activeStory.mediaType, url: activeStory.mediaUrl },
+        ...(activeStory.gallery?.map(url => ({ type: 'image' as const, url })) || [])
+    ] : [];
+
+    // Fundraising Circle Calculations (Detail View)
+    // Add safe checks for undefined properties
+    const raised = activeStory?.raised || 0;
+    const goal = activeStory?.goal || 1; // Avoid division by zero
+    const progress = activeStory ? Math.min((raised / goal) * 100, 100) : 0;
+    const radius = 20;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (progress / 100) * circumference;
+
+    // Small radius for sticky footer
+    const smallRadius = 16;
+    const smallCircumference = 2 * Math.PI * smallRadius;
+    const smallOffset = smallCircumference - (progress / 100) * smallCircumference;
+
+
+    // Carousel Scroll Handler
+    const handleScroll = () => {
+        if (scrollContainerRef.current) {
+            const index = Math.round(scrollContainerRef.current.scrollLeft / scrollContainerRef.current.clientWidth);
+            setCurrentSlide(index);
+        }
+    };
+
+    // Scroll buttons for desktop
+    const scrollPrev = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        scrollContainerRef.current?.scrollBy({ left: -scrollContainerRef.current.clientWidth, behavior: 'smooth' });
+    };
+
+    const scrollNext = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        scrollContainerRef.current?.scrollBy({ left: scrollContainerRef.current.clientWidth, behavior: 'smooth' });
+    };
 
     // Lightbox Controls
     const openLightbox = (index: number) => setLightboxIndex(index);
@@ -178,15 +417,15 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
 
     const nextLightboxImage = (e?: React.MouseEvent) => {
         e?.stopPropagation();
-        if (lightboxIndex !== null && activeStory?.gallery) {
-            setLightboxIndex((prev) => (prev! + 1) % activeStory.gallery!.length);
+        if (lightboxIndex !== null && allMedia.length > 0) {
+            setLightboxIndex((prev) => (prev! + 1) % allMedia.length);
         }
     };
 
     const prevLightboxImage = (e?: React.MouseEvent) => {
         e?.stopPropagation();
-        if (lightboxIndex !== null && activeStory?.gallery) {
-            setLightboxIndex((prev) => (prev! - 1 + activeStory.gallery!.length) % activeStory.gallery!.length);
+        if (lightboxIndex !== null && allMedia.length > 0) {
+            setLightboxIndex((prev) => (prev! - 1 + allMedia.length) % allMedia.length);
         }
     };
 
@@ -200,7 +439,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [lightboxIndex, activeStory]);
+    }, [lightboxIndex, allMedia]);
 
 
     const updateStories = (newStories: Story[]) => {
@@ -359,12 +598,19 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
     };
 
     if (activeStory) {
+        // Truncation Logic
+        const TRUNCATE_LIMIT = 300; // Character limit for truncation
+        const shouldTruncate = activeStory.content.length > TRUNCATE_LIMIT;
+        const displayedContent = isExpanded || !shouldTruncate
+            ? activeStory.content
+            : activeStory.content.slice(0, TRUNCATE_LIMIT).trim() + "...";
+
         return (
             <div className="bg-gray-50 py-0 sm:py-8 px-0 sm:px-6 lg:px-8 animate-fade-in relative">
                 <div className="max-w-4xl mx-auto">
                     <div className="p-4 sm:p-0">
                         <button
-                            onClick={() => setSelectedStoryId(null)}
+                            onClick={() => handleStorySelection(null)}
                             className="flex items-center gap-2 text-gray-600 hover:text-kenya-green font-medium mb-4 sm:mb-6 transition-colors"
                         >
                             <ArrowLeft className="w-5 h-5" /> Back to Stories
@@ -372,24 +618,132 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                     </div>
 
                     <div className="bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-xl overflow-hidden border-y sm:border border-gray-100">
-                        {/* Detail Media */}
-                        <div className="w-full relative">
-                            {activeStory.mediaType === 'video' ? (
-                                <div className="relative w-full aspect-video bg-gray-900 sm:rounded-xl overflow-hidden shadow-sm flex items-center justify-center">
-                                    <video
-                                        src={activeStory.mediaUrl}
-                                        controls
-                                        autoPlay
-                                        className="w-full h-full object-contain"
-                                    />
+
+                        {/* Media Carousel */}
+                        <div className="w-full relative group bg-black sm:rounded-t-2xl overflow-hidden shadow-sm">
+                            <div
+                                ref={scrollContainerRef}
+                                onScroll={handleScroll}
+                                className="flex w-full overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
+                                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                            >
+                                {allMedia.map((media, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="w-full flex-shrink-0 snap-center relative aspect-square sm:aspect-video flex items-center justify-center bg-black cursor-pointer"
+                                        onClick={() => openLightbox(idx)}
+                                    >
+                                        {media.type === 'video' ? (
+                                            <video
+                                                src={media.url}
+                                                controls
+                                                className="w-full h-full object-contain"
+                                            />
+                                        ) : (
+                                            <img
+                                                src={media.url}
+                                                alt={`${activeStory.title} image ${idx + 1}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        )}
+                                        {/* Mobile gradient overlay for dots visibility */}
+                                        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Dots Indicator */}
+                            {allMedia.length > 1 && (
+                                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10 pointer-events-none">
+                                    {allMedia.map((_, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`w-2 h-2 rounded-full transition-all shadow-sm ${currentSlide === idx ? 'bg-white scale-125' : 'bg-white/40'}`}
+                                        />
+                                    ))}
                                 </div>
-                            ) : (
-                                <img
-                                    src={activeStory.mediaUrl}
-                                    alt={activeStory.title}
-                                    className="w-full max-h-[600px] object-cover sm:rounded-xl shadow-sm"
-                                />
                             )}
+
+                            {/* Desktop Navigation Buttons */}
+                            {allMedia.length > 1 && (
+                                <>
+                                    <button
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-sm transition-all hidden md:block opacity-0 group-hover:opacity-100"
+                                        onClick={scrollPrev}
+                                    >
+                                        <ChevronLeft className="w-6 h-6" />
+                                    </button>
+                                    <button
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-sm transition-all hidden md:block opacity-0 group-hover:opacity-100"
+                                        onClick={scrollNext}
+                                    >
+                                        <ChevronRight className="w-6 h-6" />
+                                    </button>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Fundraising Progress Widget */}
+                        <div className="flex items-center gap-4 px-4 py-6 border-b border-gray-100 bg-white">
+                            <div className="relative w-14 h-14 flex-shrink-0">
+                                {/* Background Circle */}
+                                <svg className="w-full h-full transform -rotate-90">
+                                    <circle
+                                        cx="28"
+                                        cy="28"
+                                        r={radius}
+                                        stroke="#d1d5db"
+                                        strokeWidth="5"
+                                        fill="transparent"
+                                    />
+                                    {/* Progress Circle */}
+                                    <circle
+                                        cx="28"
+                                        cy="28"
+                                        r={radius}
+                                        stroke="#006600"
+                                        strokeWidth="5"
+                                        fill="transparent"
+                                        strokeDasharray={circumference}
+                                        strokeDashoffset={offset}
+                                        strokeLinecap="round"
+                                        className="transition-all duration-1000 ease-out"
+                                    />
+                                </svg>
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-baseline flex-wrap gap-x-1.5">
+                                     <span className="text-xl font-bold text-gray-900">
+                                        KES {activeStory.raised.toLocaleString()}
+                                    </span>
+                                    <span className="text-sm text-gray-500 font-medium">
+                                        raised of KES {activeStory.goal.toLocaleString()}
+                                    </span>
+                                </div>
+                                <div className="flex items-center text-sm text-gray-600 mt-1 cursor-pointer hover:underline group">
+                                    <span className="truncate max-w-[200px] sm:max-w-xs font-medium flex-1">
+                                        <DonorTicker donors={activeStory.recentDonors} />
+                                    </span>
+                                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 ml-0.5" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Mobile Action Buttons (Below Progress) - REF ATTACHED HERE */}
+                        <div ref={topButtonsRef} className="flex sm:hidden items-center gap-3 px-4 py-4 border-b border-gray-100 bg-white">
+                            <button
+                                onClick={() => setPage?.(Page.DONATE)}
+                                className="flex-1 bg-[#d9f99d] text-[#14532d] py-3.5 rounded-full font-bold text-base shadow-sm hover:bg-[#bef264] transition-colors flex items-center justify-center gap-2"
+                            >
+                                Donate
+                            </button>
+                            <button
+                                onClick={(e) => handleShareClick(e, activeStory)}
+                                className="flex-1 bg-[#14532d] text-white py-3.5 rounded-full font-bold text-base shadow-sm hover:bg-[#052e16] transition-colors flex items-center justify-center gap-2"
+                            >
+                                Share
+                            </button>
                         </div>
 
                         <div className="p-4 sm:p-12">
@@ -415,16 +769,17 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                 <div className="flex items-center gap-4">
                                     <button
                                         onClick={(e) => handleLike(e, activeStory.id)}
-                                        className="flex flex-col items-center gap-1 text-gray-500 hover:text-kenya-red transition-colors group"
+                                        className="hidden sm:flex flex-col items-center gap-1 text-gray-500 hover:text-kenya-red transition-colors group"
                                     >
                                         <div className="bg-gray-100 p-3 rounded-full group-hover:bg-red-50 transition-colors">
                                             <Heart className="w-6 h-6 group-hover:fill-current" />
                                         </div>
                                         <span className="text-xs font-bold">{activeStory.likes}</span>
                                     </button>
+                                    {/* Desktop Share Button - hidden on mobile to avoid duplication */}
                                     <button
                                         onClick={(e) => handleShareClick(e, activeStory)}
-                                        className="flex flex-col items-center gap-1 text-gray-500 hover:text-blue-600 transition-colors group"
+                                        className="hidden sm:flex flex-col items-center gap-1 text-gray-500 hover:text-blue-600 transition-colors group"
                                     >
                                         <div className="bg-gray-100 p-3 rounded-full group-hover:bg-blue-50 transition-colors">
                                             <Share2 className="w-6 h-6" />
@@ -435,29 +790,87 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                             </div>
 
                             {/* Detail Content */}
-                            <div className="prose prose-lg max-w-none text-gray-700 mb-12 leading-relaxed">
-                                <p className="whitespace-pre-wrap">{activeStory.content}</p>
+                            <div className="prose prose-lg max-w-none text-gray-700 mb-6 sm:mb-12 leading-relaxed">
+                                <p className="whitespace-pre-wrap">{displayedContent}</p>
+                                {shouldTruncate && !isExpanded && (
+                                    <button
+                                        onClick={() => setIsExpanded(true)}
+                                        className="mt-2 text-kenya-green font-bold text-base underline hover:text-green-700 focus:outline-none"
+                                    >
+                                        Read more
+                                    </button>
+                                )}
+                            </div>
 
-                                {/* Story Gallery */}
-                                {activeStory.gallery && activeStory.gallery.length > 0 && (
-                                    <div className="mt-8 not-prose">
-                                        <h4 className="text-lg font-bold text-gray-900 mb-4">Gallery</h4>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                            {activeStory.gallery.map((img, idx) => (
-                                                <div key={idx} className="relative group overflow-hidden rounded-xl cursor-pointer" onClick={() => openLightbox(idx)}>
-                                                    <img
-                                                        src={img}
-                                                        alt={`Story image ${idx + 1}`}
-                                                        className="w-full h-48 object-cover shadow-sm transition-transform duration-300 group-hover:scale-105 group-hover:opacity-90"
-                                                    />
-                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                                        <span className="text-white opacity-0 group-hover:opacity-100 font-bold bg-black/50 px-3 py-1 rounded-full text-sm backdrop-blur-sm">View</span>
-                                                    </div>
-                                                </div>
+                            {/* Mobile Reactions Bar (New Addition) */}
+                            <div className="flex sm:hidden items-center justify-between py-4 border-t border-gray-100 mb-4 px-2">
+
+                                {/* React Button & Popover Container */}
+                                <div className="relative" ref={reactionsRef}>
+                                    {/* Popover/Floating Menu */}
+                                    {showReactions && (
+                                        <div className="absolute bottom-full left-0 mb-3 bg-white shadow-xl rounded-full p-2 border border-gray-100 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 z-20 whitespace-nowrap overflow-x-auto max-w-[80vw]">
+                                            {REACTION_EMOJIS.map((emoji) => (
+                                                <button
+                                                    key={emoji}
+                                                    onClick={(e) => {
+                                                        handleLike(e, activeStory.id);
+                                                        setShowReactions(false); // Close after reacting
+                                                    }}
+                                                    className="text-2xl hover:scale-125 transition-transform p-1"
+                                                >
+                                                    {emoji}
+                                                </button>
                                             ))}
                                         </div>
+                                    )}
+
+                                    {/* Main Trigger Button */}
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowReactions(!showReactions);
+                                        }}
+                                        className={`flex items-center gap-2 px-3 py-2 rounded-full transition-colors ${showReactions ? 'bg-green-50 text-kenya-green' : 'text-gray-600 hover:bg-gray-50'}`}
+                                    >
+                                        <div className="relative">
+                                            <Heart className={`w-6 h-6 ${showReactions ? 'fill-current' : ''}`} />
+                                            <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-3.5 h-3.5 flex items-center justify-center shadow-sm border border-gray-100">
+                                                <span className="text-[10px] text-gray-500 font-bold leading-none">+</span>
+                                            </div>
+                                        </div>
+                                        <span className="text-sm font-semibold">React</span>
+                                    </button>
+                                </div>
+
+                                {/* Right Side: Count & Summary */}
+                                <div className="flex items-center gap-2">
+                                    {/* Static Emoji Summary - visual only */}
+                                    <div className="flex items-center -space-x-1">
+                                        {['❤️', '🙏', '✨'].map((emoji, i) => (
+                                            <span key={i} className="text-xs bg-white rounded-full border border-white relative z-10 flex items-center justify-center w-5 h-5">{emoji}</span>
+                                        ))}
                                     </div>
-                                )}
+                                    <span className="text-gray-900 font-bold text-sm underline decoration-gray-300 underline-offset-4">
+                                        {activeStory.likes}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Mobile Donate & Share Buttons (Requested Update) */}
+                            <div className="flex sm:hidden gap-4 mb-10 px-2">
+                                <button
+                                    onClick={() => setPage?.(Page.DONATE)}
+                                    className="flex-1 bg-white border border-gray-300 text-gray-900 py-3 rounded-full font-bold text-base hover:bg-gray-50 transition-colors"
+                                >
+                                    Donate
+                                </button>
+                                <button
+                                    onClick={(e) => handleShareClick(e, activeStory)}
+                                    className="flex-1 bg-white border border-gray-300 text-gray-900 py-3 rounded-full font-bold text-base hover:bg-gray-50 transition-colors"
+                                >
+                                    Share
+                                </button>
                             </div>
 
                             {/* Donate Call to Action */}
@@ -518,8 +931,69 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                     </div>
                 </div>
 
+                {/* Sticky Footer for Mobile (New) */}
+                {showStickyFooter && activeStory && (
+                    <div className="fixed bottom-0 left-0 right-0 bg-white z-[100] border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] rounded-t-2xl p-4 animate-slide-up sm:hidden">
+                        {/* Progress Info Row */}
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="relative w-10 h-10 flex-shrink-0">
+                                {/* SVG Circle */}
+                                <svg className="w-full h-full transform -rotate-90">
+                                    <circle
+                                        cx="20"
+                                        cy="20"
+                                        r={smallRadius}
+                                        stroke="#d1d5db"
+                                        strokeWidth="4"
+                                        fill="transparent"
+                                    />
+                                    {/* Progress Circle */}
+                                    <circle
+                                        cx="20"
+                                        cy="20"
+                                        r={smallRadius}
+                                        stroke="#bef264"
+                                        strokeWidth="4"
+                                        fill="transparent"
+                                        strokeDasharray={smallCircumference}
+                                        strokeDashoffset={smallOffset}
+                                        strokeLinecap="round"
+                                        className="transition-all duration-1000 ease-out"
+                                    />
+                                </svg>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-baseline gap-1.5 flex-wrap">
+                                    <span className="font-bold text-gray-900 text-sm">KES {activeStory.raised.toLocaleString()}</span>
+                                    <span className="text-xs text-gray-500">raised of KES {activeStory.goal.toLocaleString()}</span>
+                                </div>
+                                <div className="text-xs text-gray-500 truncate flex items-center gap-1 mt-0.5 cursor-pointer">
+                                    <DonorTicker donors={activeStory.recentDonors} />
+                                    <ChevronRight className="w-3 h-3 text-gray-400" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Buttons Row */}
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setPage?.(Page.DONATE)}
+                                className="flex-1 bg-[#bef264] text-[#1a2e05] font-bold py-3 rounded-full text-base hover:bg-[#a3e635] transition-colors"
+                            >
+                                Donate
+                            </button>
+                            <button
+                                onClick={(e) => handleShareClick(e, activeStory)}
+                                className="flex-1 bg-[#14532d] text-white font-bold py-3 rounded-full text-base hover:bg-[#052e16] transition-colors"
+                            >
+                                Share
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* Lightbox Modal */}
-                {lightboxIndex !== null && activeStory.gallery && (
+                {lightboxIndex !== null && allMedia.length > 0 && (
                     <div className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center animate-fade-in select-none" onClick={closeLightbox}>
                         {/* Close Button */}
                         <button
@@ -539,12 +1013,22 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
 
                         {/* Image */}
                         <div className="relative w-full h-full flex items-center justify-center p-4">
-                            <img
-                                src={activeStory.gallery[lightboxIndex]}
-                                alt={`Gallery ${lightboxIndex + 1}`}
-                                className="max-h-[90vh] max-w-[90vw] object-contain shadow-2xl rounded-lg"
-                                onClick={(e) => e.stopPropagation()}
-                            />
+                            {allMedia[lightboxIndex].type === 'video' ? (
+                                <video
+                                    src={allMedia[lightboxIndex].url}
+                                    controls
+                                    autoPlay
+                                    className="max-h-[90vh] max-w-[90vw] object-contain shadow-2xl rounded-lg"
+                                    onClick={(e) => e.stopPropagation()}
+                                />
+                            ) : (
+                                <img
+                                    src={allMedia[lightboxIndex].url}
+                                    alt={`Gallery ${lightboxIndex + 1}`}
+                                    className="max-h-[90vh] max-w-[90vw] object-contain shadow-2xl rounded-lg"
+                                    onClick={(e) => e.stopPropagation()}
+                                />
+                            )}
                         </div>
 
                         {/* Next Button */}
@@ -557,7 +1041,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
 
                         {/* Counter */}
                         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/90 text-sm font-medium bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
-                            {lightboxIndex + 1} / {activeStory.gallery.length}
+                            {lightboxIndex + 1} / {allMedia.length}
                         </div>
                     </div>
                 )}
@@ -588,92 +1072,163 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-y-4 sm:gap-8">
-                    {displayedStories.map(story => (
-                        <div
-                            key={story.id}
-                            onClick={() => setSelectedStoryId(story.id)}
-                            className="bg-white rounded-none sm:rounded-xl shadow-sm sm:shadow-lg overflow-hidden border-y sm:border border-gray-200 sm:border-gray-100 flex flex-col cursor-pointer sm:hover:shadow-2xl transition-all transform sm:hover:-translate-y-1 group"
-                        >
-                            {/* Header */}
-                            <div className="p-4 flex items-center justify-between border-b border-gray-50">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold">
-                                        {story.name.charAt(0)}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-gray-900 leading-tight group-hover:text-kenya-green transition-colors">{story.title}</h3>
-                                        <p className="text-xs text-gray-500">{story.name} • {story.location}</p>
-                                    </div>
-                                </div>
-                                <div className="text-xs text-gray-400">
-                                    {new Date(story.date).toLocaleDateString()}
-                                </div>
-                            </div>
+                    {displayedStories.map(story => {
+                        // Safe defaults
+                        const raised = story.raised || 0;
+                        const goal = story.goal || 1;
+                        const storyProgress = Math.min((raised / goal) * 100, 100);
+                        const storyRadius = 18;
+                        const storyCircumference = 2 * Math.PI * storyRadius;
+                        const storyOffset = storyCircumference - (storyProgress / 100) * storyCircumference;
 
-                            {/* Media */}
-                            <div className="w-full relative">
-                                <div className="overflow-hidden relative">
-                                    {story.mediaType === 'video' ? (
-                                        <div className="relative w-full aspect-video bg-gray-900 flex items-center justify-center">
-                                            <video
-                                                src={story.mediaUrl}
-                                                // Controls removed in preview to encourage clicking the card
-                                                className="w-full h-full object-contain pointer-events-none"
-                                            />
-                                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
-                                                <PlayCircle className="w-12 h-12 text-white opacity-80" />
-                                            </div>
+                        return (
+                            <div
+                                key={story.id}
+                                onClick={() => handleStorySelection(story.id)}
+                                className="bg-white rounded-none sm:rounded-xl shadow-sm sm:shadow-lg overflow-hidden border-y sm:border border-gray-200 sm:border-gray-100 flex flex-col cursor-pointer sm:hover:shadow-2xl transition-all transform sm:hover:-translate-y-1 group"
+                            >
+                                {/* Header */}
+                                <div className="p-4 flex items-center justify-between border-b border-gray-50">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold">
+                                            {story.name.charAt(0)}
                                         </div>
-                                    ) : (
-                                        <img
-                                            src={story.mediaUrl}
-                                            alt={story.title}
-                                            className="w-full h-72 sm:h-64 object-cover transition-transform duration-500 group-hover:scale-105"
-                                        />
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Actions & Content */}
-                            <div className="p-6 flex flex-col flex-grow">
-                                <div className="flex items-center gap-6 mb-4">
-                                    <button
-                                        onClick={(e) => handleLike(e, story.id)}
-                                        className="flex items-center gap-2 text-gray-600 hover:text-kenya-red transition-colors group/like"
-                                    >
-                                        <Heart className="w-6 h-6 group-hover/like:fill-current transition-colors" />
-                                        <span className="font-medium">{story.likes} Likes</span>
-                                    </button>
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <MessageCircle className="w-6 h-6" />
-                                        <span className="font-medium">{story.comments.length} Comments</span>
+                                        <div>
+                                            <h3 className="font-bold text-gray-900 leading-tight group-hover:text-kenya-green transition-colors">{story.title}</h3>
+                                            <p className="text-xs text-gray-500">{story.name} • {story.location}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-xs text-gray-400">
+                                        {new Date(story.date).toLocaleDateString()}
                                     </div>
                                 </div>
 
-                                <p className="text-gray-800 mb-6 leading-relaxed flex-grow line-clamp-3">
-                                    <span className="font-bold mr-2">{story.name}</span>
-                                    {story.content}
-                                </p>
-                                <span className="text-kenya-green text-sm font-bold mb-4 hover:underline">Read full story &rarr;</span>
+                                {/* Media */}
+                                <div className="w-full relative">
+                                    <div className="overflow-hidden relative">
+                                        {story.mediaType === 'video' ? (
+                                            <div className="relative w-full aspect-video bg-gray-900 flex items-center justify-center">
+                                                <video
+                                                    src={story.mediaUrl}
+                                                    // Controls removed in preview to encourage clicking the card
+                                                    className="w-full h-full object-contain pointer-events-none"
+                                                />
+                                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                                                    <PlayCircle className="w-12 h-12 text-white opacity-80" />
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <img
+                                                src={story.mediaUrl}
+                                                alt={story.title}
+                                                className="w-full h-72 sm:h-64 object-cover transition-transform duration-500 group-hover:scale-105"
+                                            />
+                                        )}
+                                    </div>
+                                </div>
 
-                                {/* New Donate & Share Buttons */}
-                                <div className="grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-gray-100">
+                                {/* Fundraising Progress Widget (List View) */}
+                                <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                                    <div className="relative w-12 h-12 flex-shrink-0">
+                                        <svg className="w-full h-full transform -rotate-90">
+                                            <circle
+                                                cx="24"
+                                                cy="24"
+                                                r={storyRadius}
+                                                stroke="#e5e7eb"
+                                                strokeWidth="4"
+                                                fill="transparent"
+                                            />
+                                            <circle
+                                                cx="24"
+                                                cy="24"
+                                                r={storyRadius}
+                                                stroke="#006600"
+                                                strokeWidth="4"
+                                                fill="transparent"
+                                                strokeDasharray={storyCircumference}
+                                                strokeDashoffset={storyOffset}
+                                                strokeLinecap="round"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-baseline flex-wrap gap-x-1">
+                                            <span className="text-sm font-bold text-gray-900">
+                                                KES {raised.toLocaleString()}
+                                            </span>
+                                            <span className="text-xs text-gray-500 font-medium">
+                                                raised of KES {goal.toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center text-xs text-gray-600 mt-0.5">
+                                             <span className="truncate font-medium text-gray-500 flex-1">
+                                                <DonorTicker donors={story.recentDonors} />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Mobile Action Buttons (List View) */}
+                                <div className="flex sm:hidden items-center gap-3 px-4 py-3 border-b border-gray-100 bg-white" onClick={(e) => e.stopPropagation()}>
                                     <button
-                                        onClick={handleDonate}
-                                        className="bg-kenya-red text-white py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-700 transition-colors shadow-sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setPage?.(Page.DONATE);
+                                        }}
+                                        className="flex-1 bg-[#d9f99d] text-[#14532d] py-2.5 rounded-full font-bold text-sm shadow-sm hover:bg-[#bef264] transition-colors flex items-center justify-center gap-2"
                                     >
-                                        <HeartHandshake className="w-4 h-4" /> Donate
+                                        Donate
                                     </button>
                                     <button
                                         onClick={(e) => handleShareClick(e, story)}
-                                        className="bg-gray-50 text-gray-700 border border-gray-200 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
+                                        className="flex-1 bg-[#14532d] text-white py-2.5 rounded-full font-bold text-sm shadow-sm hover:bg-[#052e16] transition-colors flex items-center justify-center gap-2"
                                     >
-                                        <Share2 className="w-4 h-4" /> Share
+                                        Share
                                     </button>
                                 </div>
+
+                                {/* Actions & Content */}
+                                <div className="p-6 flex flex-col flex-grow">
+                                    <div className="flex items-center gap-6 mb-4">
+                                        <button
+                                            onClick={(e) => handleLike(e, story.id)}
+                                            className="flex items-center gap-2 text-gray-600 hover:text-kenya-red transition-colors group/like"
+                                        >
+                                            <Heart className="w-6 h-6 group-hover/like:fill-current transition-colors" />
+                                            <span className="font-medium">{story.likes} Likes</span>
+                                        </button>
+                                        <div className="flex items-center gap-2 text-gray-600">
+                                            <MessageCircle className="w-6 h-6" />
+                                            <span className="font-medium">{story.comments.length} Comments</span>
+                                        </div>
+                                    </div>
+
+                                    <p className="text-gray-800 mb-6 leading-relaxed flex-grow line-clamp-3">
+                                        <span className="font-bold mr-2">{story.name}</span>
+                                        {story.content}
+                                    </p>
+                                    <span className="text-kenya-green text-sm font-bold mb-4 hover:underline">Read full story &rarr;</span>
+
+                                    {/* Desktop Donate & Share Buttons */}
+                                    <div className="hidden sm:grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-gray-100">
+                                        <button
+                                            onClick={handleDonate}
+                                            className="bg-kenya-red text-white py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-700 transition-colors shadow-sm"
+                                        >
+                                            <HeartHandshake className="w-4 h-4" /> Donate
+                                        </button>
+                                        <button
+                                            onClick={(e) => handleShareClick(e, story)}
+                                            className="bg-gray-50 text-gray-700 border border-gray-200 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
+                                        >
+                                            <Share2 className="w-4 h-4" /> Share
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 {limit && stories.length > limit && (

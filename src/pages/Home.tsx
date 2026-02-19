@@ -5,9 +5,10 @@ import { Stories } from './Stories';
 
 interface HomeProps {
     setPage: (page: Page) => void;
+    onStoryStateChange?: (isOpen: boolean) => void;
 }
 
-export const Home: React.FC<HomeProps> = ({ setPage }) => {
+export const Home: React.FC<HomeProps> = ({ setPage, onStoryStateChange }) => {
     return (
         <div className="animate-fade-in">
             {/* Stories Section (Now at the top) - Limited to 6 items */}
@@ -16,6 +17,7 @@ export const Home: React.FC<HomeProps> = ({ setPage }) => {
                 limit={6}
                 title="From hope to action. From struggle to strength. Tushinde."
                 showDonateButton={true}
+                onStoryStateChange={onStoryStateChange}
             />
 
             {/* Stats Section */}

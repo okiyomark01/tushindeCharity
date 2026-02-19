@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Plus, Trash2,
     LayoutGrid, FileText, DollarSign, Users,
@@ -236,9 +236,27 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
     const [loginCreds, setLoginCreds] = useState({ username: '', password: '' });
     const [loginError, setLoginError] = useState('');
 
+    // Helper to get tab from URL
+    const getTabFromUrl = (): Tab => {
+        if (typeof window === 'undefined') return 'dashboard';
+        const params = new URLSearchParams(window.location.search);
+        const tabParam = params.get('tab');
+        const validTabs: Tab[] = ['dashboard', 'applications', 'stories', 'programs', 'donations', 'settings'];
+        return validTabs.includes(tabParam as Tab) ? (tabParam as Tab) : 'dashboard';
+    };
+
     // Dashboard State
-    const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+    const [activeTab, setActiveTab] = useState<Tab>(getTabFromUrl);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // Sync with browser back/forward for Tabs
+    useEffect(() => {
+        const handlePopState = () => {
+            setActiveTab(getTabFromUrl());
+        };
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
 
     // Initialize Data with Lazy State to avoid setState in useEffect
     const [applications, setApplications] = useState<ApplicationForm[]>(() => {
@@ -330,6 +348,9 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
     };
 
     const handleNavClick = (tab: Tab) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tab);
+        window.history.pushState({}, '', url.toString());
         setActiveTab(tab);
         setIsMobileMenuOpen(false);
     };
@@ -574,7 +595,7 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
 
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+            <div className="flex-grow bg-gray-900 flex items-center justify-center p-4 w-full">
                 <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-8 max-w-md w-full">
                     <div className="text-center mb-8">
                         <div className="bg-kenya-green w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -752,7 +773,7 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col">
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="font-bold text-gray-900 text-sm md:text-base">Recent Applications</h3>
-                                    <button onClick={() => setActiveTab('applications')} className="text-xs text-blue-600 hover:underline flex-shrink-0">View All</button>
+                                    <button onClick={() => handleNavClick('applications')} className="text-xs text-blue-600 hover:underline flex-shrink-0">View All</button>
                                 </div>
                                 <div className="space-y-3 flex-1">
                                     {applications.slice(0, 5).map(app => (
@@ -782,7 +803,7 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col">
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="font-bold text-gray-900 text-sm md:text-base">Recent Donations</h3>
-                                    <button onClick={() => setActiveTab('donations')} className="text-xs text-blue-600 hover:underline flex-shrink-0">View All</button>
+                                    <button onClick={() => handleNavClick('donations')} className="text-xs text-blue-600 hover:underline flex-shrink-0">View All</button>
                                 </div>
                                 <div className="space-y-3 flex-1">
                                     {donations.slice(0, 5).map(d => (
