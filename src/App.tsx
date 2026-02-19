@@ -61,17 +61,17 @@ function App() {
             isAdminAuthenticated={isAdminAuthenticated}
             onLogout={handleLogout}
         />
-        <main className="flex-grow pb-24 md:pb-0">
+        <main className="flex-grow">
           {renderPage()}
         </main>
         <Footer setPage={setCurrentPage} />
 
         {/* Mobile Sticky Donate Button */}
         {currentPage !== Page.DONATE && currentPage !== Page.ADMIN && (
-            <div className="fixed bottom-0 left-0 right-0 p-4 md:hidden z-40 bg-white border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+            <div className="fixed bottom-0 left-0 right-0 p-4 md:hidden z-40 pointer-events-none">
               <button
                   onClick={() => setCurrentPage(Page.DONATE)}
-                  className="w-full bg-kenya-green hover:bg-green-800 text-white font-bold py-3.5 rounded-full shadow-lg transition-transform active:scale-95 text-lg"
+                  className="w-full bg-kenya-green hover:bg-green-800 text-white font-bold py-3.5 rounded-full shadow-2xl transition-transform active:scale-95 text-lg pointer-events-auto"
               >
                 Start a Donation
               </button>

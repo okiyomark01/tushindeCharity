@@ -14,7 +14,7 @@ export const Home: React.FC<HomeProps> = ({ setPage }) => {
             <Stories
                 setPage={setPage}
                 limit={6}
-                title="Together, we can turn compassion into action and hope into reality."
+                title="From hope to action. From struggle to strength. Tushinde."
                 showDonateButton={true}
             />
 
@@ -46,48 +46,51 @@ export const Home: React.FC<HomeProps> = ({ setPage }) => {
             </div>
 
             {/* Featured Areas */}
-            <section className="py-20 bg-gray-50">
+            <section className="pt-12 pb-3 md:py-20 bg-gray-50">
                 <div className="w-full px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl font-serif font-bold text-gray-900 mb-4">Our Core Programs</h2>
+                    <div className="text-center mb-10 md:mb-16">
+                        <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">Our Core Programs</h2>
                         <div className="w-24 h-1 bg-kenya-green mx-auto rounded-full"></div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-8">
+                        {/* Card 1 */}
                         <div
                             onClick={() => setPage(Page.PROGRAMS)}
-                            className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-shadow cursor-pointer group"
+                            className="bg-white p-4 md:p-8 rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-shadow cursor-pointer group"
                         >
-                            <div className="bg-green-100 w-14 h-14 rounded-full flex items-center justify-center mb-6 group-hover:bg-kenya-green transition-colors">
-                                <Heart className="w-7 h-7 text-kenya-green group-hover:text-white" />
+                            <div className="bg-green-100 w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-4 md:mb-6 group-hover:bg-kenya-green transition-colors">
+                                <Heart className="w-5 h-5 md:w-7 md:h-7 text-kenya-green group-hover:text-white" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">Medical Assistance</h3>
-                            <p className="text-gray-600 mb-4">Providing emergency surgeries, treatments, and ongoing care for those who cannot afford it.</p>
-                            <span className="text-kenya-green font-semibold flex items-center text-sm">Learn more <ArrowRight className="w-4 h-4 ml-1" /></span>
+                            <h3 className="text-sm md:text-xl font-bold mb-2 md:mb-3 leading-tight">Medical Assistance</h3>
+                            <p className="text-xs md:text-base text-gray-600 mb-3 md:mb-4 line-clamp-3 md:line-clamp-none">Providing emergency surgeries, treatments, and ongoing care for those who cannot afford it.</p>
+                            <span className="text-kenya-green font-semibold flex items-center text-xs md:text-sm">Learn more <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1" /></span>
                         </div>
 
+                        {/* Card 2 */}
                         <div
                             onClick={() => setPage(Page.PROGRAMS)}
-                            className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-shadow cursor-pointer group"
+                            className="bg-white p-4 md:p-8 rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-shadow cursor-pointer group"
                         >
-                            <div className="bg-red-100 w-14 h-14 rounded-full flex items-center justify-center mb-6 group-hover:bg-kenya-red transition-colors">
-                                <GraduationCap className="w-7 h-7 text-kenya-red group-hover:text-white" />
+                            <div className="bg-red-100 w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-4 md:mb-6 group-hover:bg-kenya-red transition-colors">
+                                <GraduationCap className="w-5 h-5 md:w-7 md:h-7 text-kenya-red group-hover:text-white" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">Education Support</h3>
-                            <p className="text-gray-600 mb-4">School fees, uniforms, and supplies to ensure every child stays in school and builds a future.</p>
-                            <span className="text-kenya-red font-semibold flex items-center text-sm">Learn more <ArrowRight className="w-4 h-4 ml-1" /></span>
+                            <h3 className="text-sm md:text-xl font-bold mb-2 md:mb-3 leading-tight">Education Support</h3>
+                            <p className="text-xs md:text-base text-gray-600 mb-3 md:mb-4 line-clamp-3 md:line-clamp-none">School fees, uniforms, and supplies to ensure every child stays in school and builds a future.</p>
+                            <span className="text-kenya-red font-semibold flex items-center text-xs md:text-sm">Learn more <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1" /></span>
                         </div>
 
+                        {/* Card 3 - Spanning 2 cols on mobile for balance */}
                         <div
                             onClick={() => setPage(Page.PROGRAMS)}
-                            className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-shadow cursor-pointer group"
+                            className="bg-white p-4 md:p-8 rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-shadow cursor-pointer group col-span-2 md:col-span-1"
                         >
-                            <div className="bg-gray-100 w-14 h-14 rounded-full flex items-center justify-center mb-6 group-hover:bg-gray-800 transition-colors">
-                                <Briefcase className="w-7 h-7 text-gray-800 group-hover:text-white" />
+                            <div className="bg-gray-100 w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-4 md:mb-6 group-hover:bg-gray-800 transition-colors">
+                                <Briefcase className="w-5 h-5 md:w-7 md:h-7 text-gray-800 group-hover:text-white" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">Business Funding</h3>
-                            <p className="text-gray-600 mb-4">Micro-grants and mentorship for aspiring entrepreneurs to start sustainable small businesses.</p>
-                            <span className="text-gray-800 font-semibold flex items-center text-sm">Learn more <ArrowRight className="w-4 h-4 ml-1" /></span>
+                            <h3 className="text-sm md:text-xl font-bold mb-2 md:mb-3 leading-tight">Business Funding</h3>
+                            <p className="text-xs md:text-base text-gray-600 mb-3 md:mb-4 md:line-clamp-none">Micro-grants and mentorship for aspiring entrepreneurs to start sustainable small businesses.</p>
+                            <span className="text-gray-800 font-semibold flex items-center text-xs md:text-sm">Learn more <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1" /></span>
                         </div>
                     </div>
                 </div>
