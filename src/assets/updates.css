@@ -440,123 +440,129 @@
     }
 }
 
-/* Add to your existing storiesslider.css */
+/* --- Refined Styles for Similar Stories --- */
+
+/* Main container for the entire component */
+.stories-container {
+    background-color: #f9fafb; /* Light gray background */
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #f3f4f6;
+    margin-top: 2rem;
+}
+
+/* Header section with title and count */
+.stories-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
 
 .stories-title-wrapper {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
 }
 
-.view-all-link {
+.stories-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.stories-title-icon {
+    color: #10b981; /* Emerald color */
+    font-size: 20px;
+}
+
+.stories-count {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    background-color: #f3f4f6;
+    padding: 4px 12px;
+    border-radius: 9999px;
+}
+
+/* Wrapper for the slider and navigation arrows */
+.stories-slider-wrapper {
+    position: relative;
+}
+
+/* Navigation buttons (left/right arrows) */
+.stories-nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: #059669;
-    font-size: 14px;
-    font-weight: 600;
-    background: none;
-    border: none;
+    justify-content: center;
     cursor: pointer;
-    padding: 4px 12px;
-    border-radius: 20px;
     transition: all 0.2s ease;
-    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-.view-all-link:hover {
-    background: #f0fdf4;
-    border-color: #059669;
-    transform: translateX(2px);
+.stories-nav-button:hover {
+    background-color: #ffffff;
+    border-color: #d1d5db;
+    transform: translateY(-50%) scale(1.05);
 }
 
-.view-all-icon {
-    font-size: 12px;
-    transition: transform 0.2s ease;
+.stories-nav-button.left {
+    left: -20px;
 }
 
-.view-all-link:hover .view-all-icon {
-    transform: translateX(4px);
+.stories-nav-button.right {
+    right: -20px;
 }
 
+/* The actual scrollable slider */
+.stories-slider {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 16px; /* Space for scrollbar without content overlap */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+}
+
+.stories-slider::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+
+/* Individual story item */
 .story-item {
     flex: 0 0 auto;
-    width: 120px; /* Slightly wider for better text display */
+    width: 110px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease;
+    text-align: center;
 }
 
 .story-item:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
 }
 
-.story-amount {
-    color: #059669;
-    font-size: 12px;
-    font-weight: 600;
-    background: #ecfdf5;
-    padding: 2px 8px;
-    border-radius: 12px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 110px;
-}
-
-.story-location {
-    color: #6b7280;
-    font-size: 10px;
-    font-weight: 400;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 110px;
-}
-
-.story-video-placeholder {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    border-radius: 50%;
-}
-
-.story-video-icon {
-    position: absolute;
-    font-size: 24px;
-    color: white;
-    opacity: 0.8;
-}
-
-.story-video-placeholder .story-initials {
-    font-size: 24px;
-    font-weight: 600;
-    color: white;
-    z-index: 1;
-}
-
-/* Update story-avatar-wrapper to handle video placeholder */
+/* Avatar styles */
 .story-avatar-wrapper {
     position: relative;
-    width: 80px;
-    height: 80px;
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.story-avatar-wrapper.has-story {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed, #059669, #10b981);
     padding: 3px;
+    background: linear-gradient(45deg, #a78bfa, #ec4899); /* Gradient border */
 }
 
 .story-avatar {
@@ -564,11 +570,8 @@
     height: 100%;
     border-radius: 50%;
     overflow: hidden;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.25);
+    border: 2px solid white;
+    background-color: #e5e7eb;
 }
 
 .story-image {
@@ -577,19 +580,70 @@
     object-fit: cover;
 }
 
+/* Story details (name, amount, location) */
+.story-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.story-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.3;
+}
+
+.story-amount {
+    font-size: 12px;
+    font-weight: 500;
+    color: #059669;
+}
+
+.story-location {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+/* View all link */
+.view-all-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    padding: 10px 16px;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.view-all-link:hover {
+    background-color: #e5e7eb;
+    border-color: #d1d5db;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    .stories-container {
+        padding: 16px;
+    }
+
+    .stories-nav-button {
+        display: none; /* Hide arrows on mobile, rely on touch scroll */
+    }
+
     .story-item {
-        width: 100px;
+        width: 90px;
     }
 
     .story-avatar-wrapper {
         width: 64px;
         height: 64px;
-    }
-
-    .view-all-link {
-        font-size: 12px;
-        padding: 2px 8px;
     }
 }

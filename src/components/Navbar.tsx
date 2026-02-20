@@ -33,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setPage, isAdminAut
                             <div className="bg-kenya-green p-2 rounded-full">
                                 <HeartHandshake className="h-6 w-6 text-white" />
                             </div>
-                            <span className="font-serif font-bold text-2xl tracking-tight text-gray-900">
+                            <span className="font-serif font-bold text-xl sm:text-2xl tracking-tight text-gray-900">
                 Tushinde<span className="text-kenya-green">Charity</span>
               </span>
                         </div>
