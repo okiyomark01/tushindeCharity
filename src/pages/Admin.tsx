@@ -6,10 +6,9 @@ import {
     Pencil, Settings,
     Menu, X, Heart
 } from 'lucide-react';
-import type { Story, MediaType, ApplicationForm, Donation, HeroContent, AboutContent, ContactContent, Program } from '../types';
-import {DEFAULT_STORIES} from "../hook/useStories.ts";
+import type { Story, MediaType, ApplicationForm, Donation, AboutContent, ContactContent, Program } from '../types';
 
-// Mock Donations.tsx Data
+// Mock Donations Data
 const MOCK_DONATIONS: Donation[] = [
     { id: 'TX1001', donorName: 'John Kamau', amount: 5000, method: 'M-Pesa', date: '2023-10-25', status: 'Completed', reference: 'QHJ892KL' },
     { id: 'TX1002', donorName: 'Sarah Smith', amount: 12000, method: 'Card', date: '2023-10-24', status: 'Completed', reference: 'VISA-4242' },
@@ -91,6 +90,102 @@ const MOCK_APPLICATIONS: ApplicationForm[] = [
     }
 ];
 
+const DEFAULT_STORIES: Story[] = [
+    {
+        id: '1',
+        name: "Mama Wanjiku",
+        location: "Nyeri",
+        mediaUrl: "https://picsum.photos/id/1062/800/600",
+        mediaType: 'image',
+        title: "A Business Reborn",
+        content: "After losing her vegetable stall to floods, Mama Wanjiku received a KES 15,000 grant. She now runs a thriving grocery shop and employs two youth. The grant allowed her to rebuild the structure with stronger materials and restock her inventory. 'I never thought I would recover,' she says, 'but now I am dreaming bigger than before.' Her success has inspired other women in the market to form a savings group.",
+        likes: 124,
+        comments: [
+            {id: 'c1', author: 'Jane Doe', text: 'So inspiring!', date: new Date().toISOString()}
+        ],
+        date: new Date().toISOString(),
+        gallery: [
+            "https://picsum.photos/id/1062/800/600",
+            "https://picsum.photos/id/225/800/600",
+            "https://picsum.photos/id/292/800/600"
+        ],
+        raised: 15000,
+        goal: 50000,
+        category: 'Business',
+        donorCount: 42,
+        isLive: false
+    },
+    {
+        id: '2',
+        name: "Community Water Project",
+        location: "Turkana",
+        mediaUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+        mediaType: 'video',
+        title: "Clean Water for All",
+        content: "Watch the moment clean water flowed in the village for the first time. Thanks to the new solar-powered borehole, women no longer walk 10km a day for water. This project serves over 500 households and has significantly reduced waterborne diseases in the area. The joy on the children's faces as they splashed in the clean water was a sight to behold.",
+        likes: 342,
+        comments: [
+            {id: 'c2', author: 'John Smith', text: 'This is incredible progress.', date: new Date().toISOString()}
+        ],
+        date: new Date().toISOString(),
+        raised: 450000,
+        goal: 600000,
+        category: 'Community',
+        donorCount: 315,
+        isLive: false
+    },
+    {
+        id: '3',
+        name: "Kevin Omondi",
+        location: "Kisumu",
+        mediaUrl: "https://picsum.photos/id/1005/800/600",
+        mediaType: 'image',
+        title: "Walking Again",
+        content: "Kevin needed a prosthetic leg after an accident. Thanks to our donors, he received a custom fitting and is back to playing football. The rehabilitation process was tough, but Kevin's determination never wavered. He now coaches a local youth team and advocates for disability rights in his community.",
+        likes: 89,
+        comments: [],
+        date: new Date().toISOString(),
+        raised: 35000,
+        goal: 80000,
+        category: 'Medical',
+        donorCount: 56,
+        isLive: false
+    },
+    {
+        id: '4',
+        name: "Halima Juma",
+        location: "Mombasa",
+        mediaUrl: "https://picsum.photos/id/338/800/600",
+        mediaType: 'image',
+        title: "First in the Family",
+        content: "Halima is the first in her family to attend university. Our scholarship fund covers her Engineering degree tuition at JKUAT. She plans to specialize in civil engineering to help build better infrastructure in her hometown. 'Education is the key to unlocking potential,' Halima believes.",
+        likes: 256,
+        comments: [],
+        date: new Date().toISOString(),
+        raised: 28000,
+        goal: 80000,
+        category: 'Education',
+        donorCount: 89,
+        isLive: false
+    },
+    {
+        id: '5',
+        name: "James Kamau",
+        location: "Kiambu",
+        mediaUrl: "https://picsum.photos/id/1025/800/600",
+        mediaType: 'image',
+        title: "Emergency Relief",
+        content: "When fire destroyed his home, our emergency response team provided shelter, food, and clothes for James and his 3 children within 24 hours. The swift action helped stabilize the family during a traumatic time. They are now in temporary housing and working towards a permanent solution.",
+        likes: 45,
+        comments: [],
+        date: new Date().toISOString(),
+        raised: 15000,
+        goal: 100000,
+        category: 'Emergency',
+        donorCount: 25,
+        isLive: false
+    }
+];
 
 const DEFAULT_PROGRAMS: Program[] = [
     {
@@ -230,24 +325,6 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
     const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
     const [programForm, setProgramForm] = useState<Partial<Program>>({});
 
-    // Settings States
-    const [heroForm, setHeroForm] = useState<HeroContent>(() => {
-        try {
-            const stored = localStorage.getItem('heroContent');
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                if (parsed && typeof parsed === 'object') return parsed;
-            }
-        } catch (e) {
-            console.error("Error parsing hero content:", e);
-        }
-        return {
-            title: "Restoring Hope, Changing Lives in Kenya.",
-            subtitle: "We provide urgent medical care, education scholarships, and business funding to the most vulnerable members of our community.",
-            backgroundImageUrl: "https://picsum.photos/id/1015/1920/1080"
-        };
-    });
-
     const [aboutForm, setAboutForm] = useState<AboutContent>(() => {
         try {
             const stored = localStorage.getItem('aboutContent');
@@ -363,19 +440,6 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
         }
     };
 
-    // Settings Actions
-    const handleHeroImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const result = reader.result as string;
-                setHeroForm(prev => ({ ...prev, backgroundImageUrl: result }));
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
     const handleAboutImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -386,12 +450,6 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
             };
             reader.readAsDataURL(file);
         }
-    };
-
-    const handleSaveHero = (e: React.FormEvent) => {
-        e.preventDefault();
-        localStorage.setItem('heroContent', JSON.stringify(heroForm));
-        alert('Home Page Settings updated successfully!');
     };
 
     const handleSaveAbout = (e: React.FormEvent) => {
@@ -439,6 +497,7 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
         } else {
             // Create new story
             const story: Story = {
+                isLive: false,
                 id: Date.now().toString(),
                 name: newStory.name || 'Anonymous',
                 title: newStory.title!,
@@ -453,8 +512,7 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                 raised: 0,
                 goal: 100000,
                 category: 'Community',
-                donorCount: 0,
-                isLive:false
+                donorCount: 0
             };
             const updatedStories = [story, ...stories];
             setStories(updatedStories);
@@ -790,11 +848,41 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                 {/* Applications View */}
                 {activeTab === 'applications' && (
                     <div className="space-y-6">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
                             <div className="p-6 border-b border-gray-100">
                                 <h3 className="text-lg font-bold text-gray-900">Assistance Requests</h3>
                             </div>
-                            <div className="overflow-x-auto">
+
+                            {/* Mobile Card View */}
+                            <div className="md:hidden p-4 space-y-4">
+                                {applications.map(app => (
+                                    <div key={app.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div>
+                                                <p className="font-bold text-gray-800 text-base">{app.fullName}</p>
+                                                <p className="text-xs text-gray-500">{app.location} - {app.assistanceType}</p>
+                                            </div>
+                                            <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
+                                                app.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                                                    app.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                                                        'bg-yellow-100 text-yellow-800'
+                                            }`}>{app.status}</span>
+                                        </div>
+                                        <div className="space-y-2 text-sm">
+                                            <div className="flex justify-between">
+                                                <span className="text-gray-500">Date</span>
+                                                <span className="text-gray-800">{app.date}</span>
+                                            </div>
+                                            <div className="pt-2 mt-2 border-t border-gray-200 text-right">
+                                                <button onClick={() => setSelectedApp(app)} className="text-blue-600 hover:underline font-bold">Review Details</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Desktop Table View */}
+                            <div className="hidden md:block overflow-x-auto">
                                 <table className="w-full text-sm text-left">
                                     <thead className="text-xs text-gray-500 uppercase bg-gray-50">
                                     <tr>
@@ -833,48 +921,56 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                         </div>
 
                         {selectedApp && (
-                            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                                <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                                    <div className="flex justify-between items-start mb-6">
-                                        <h3 className="text-2xl font-bold text-gray-900">Application Details</h3>
-                                        <button onClick={() => setSelectedApp(null)} className="p-1 hover:bg-gray-100 rounded-full"><X className="w-6 h-6"/></button>
+                            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+                                <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+                                    {/* Header */}
+                                    <div className="p-6 border-b border-gray-200 flex justify-between items-start">
+                                        <div>
+                                            <h3 className="text-xl font-bold text-gray-900">Application Review</h3>
+                                            <p className="text-sm text-gray-500">Submitted on {selectedApp.date}</p>
+                                        </div>
+                                        <button onClick={() => setSelectedApp(null)} className="p-2 text-gray-400 hover:bg-gray-100 rounded-full"><X className="w-5 h-5"/></button>
                                     </div>
-                                    <div className="space-y-4 mb-8">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <p className="text-sm text-gray-500">Full Name</p>
-                                                <p className="font-medium">{selectedApp.fullName}</p>
+
+                                    {/* Content */}
+                                    <div className="p-6 space-y-6 overflow-y-auto">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                <p className="text-xs text-gray-500 font-bold uppercase">Applicant</p>
+                                                <p className="font-semibold text-lg text-gray-900">{selectedApp.fullName}</p>
                                             </div>
-                                            <div>
-                                                <p className="text-sm text-gray-500">ID Number</p>
-                                                <p className="font-medium">{selectedApp.nationalId}</p>
+                                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                <p className="text-xs text-gray-500 font-bold uppercase">National ID</p>
+                                                <p className="font-semibold text-lg text-gray-900 font-mono">{selectedApp.nationalId}</p>
                                             </div>
-                                            <div>
-                                                <p className="text-sm text-gray-500">Location</p>
-                                                <p className="font-medium">{selectedApp.location}</p>
+                                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                <p className="text-xs text-gray-500 font-bold uppercase">Location</p>
+                                                <p className="font-semibold text-lg text-gray-900">{selectedApp.location}</p>
                                             </div>
-                                            <div>
-                                                <p className="text-sm text-gray-500">Type</p>
-                                                <p className="font-medium">{selectedApp.assistanceType}</p>
+                                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                <p className="text-xs text-gray-500 font-bold uppercase">Assistance Type</p>
+                                                <p className="font-semibold text-lg text-gray-900">{selectedApp.assistanceType}</p>
                                             </div>
                                         </div>
-                                        <div className="bg-gray-50 p-4 rounded-lg">
-                                            <p className="text-sm text-gray-500 mb-2">Description</p>
-                                            <p className="text-gray-900">{selectedApp.description}</p>
+                                        <div>
+                                            <p className="text-xs text-gray-500 font-bold uppercase mb-2">Request Details</p>
+                                            <p className="text-gray-700 bg-white border border-gray-200 rounded-lg p-4 leading-relaxed">{selectedApp.description}</p>
                                         </div>
                                     </div>
-                                    <div className="flex gap-4">
-                                        <button
-                                            onClick={() => updateApplicationStatus(selectedApp.id, 'Approved')}
-                                            className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700"
-                                        >
-                                            Approve Request
-                                        </button>
+
+                                    {/* Footer with Actions */}
+                                    <div className="bg-gray-50 p-6 rounded-b-2xl flex justify-end gap-4 border-t border-gray-200">
                                         <button
                                             onClick={() => updateApplicationStatus(selectedApp.id, 'Rejected')}
-                                            className="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700"
+                                            className="bg-red-100 text-red-700 px-6 py-3 rounded-lg font-bold hover:bg-red-200 transition-colors shadow-sm"
                                         >
-                                            Reject Request
+                                            Reject
+                                        </button>
+                                        <button
+                                            onClick={() => updateApplicationStatus(selectedApp.id, 'Approved')}
+                                            className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-700 transition-colors shadow-sm"
+                                        >
+                                            Approve Request
                                         </button>
                                     </div>
                                 </div>
@@ -1010,93 +1106,152 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                     </div>
                 )}
 
-                {/* Donations.tsx View */}
+                {/* Donations View */}
                 {activeTab === 'donations' && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="p-6 border-b border-gray-100">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div className="p-4 sm:p-6 border-b border-gray-100">
                             <h3 className="text-lg font-bold text-gray-900">Recent Transactions</h3>
                         </div>
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-gray-500 uppercase bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3">Donor</th>
-                                <th className="px-6 py-3">Amount</th>
-                                <th className="px-6 py-3">Method</th>
-                                <th className="px-6 py-3">Reference</th>
-                                <th className="px-6 py-3">Date</th>
-                                <th className="px-6 py-3">Status</th>
-                            </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
+
+                        {/* Mobile Card View */}
+                        <div className="md:hidden p-4 space-y-4">
                             {donations.map(d => (
-                                <tr key={d.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 font-medium">{d.donorName}</td>
-                                    <td className="px-6 py-4 text-green-600 font-bold">KES {d.amount.toLocaleString()}</td>
-                                    <td className="px-6 py-4">{d.method}</td>
-                                    <td className="px-6 py-4 font-mono text-xs">{d.reference}</td>
-                                    <td className="px-6 py-4">{d.date}</td>
-                                    <td className="px-6 py-4"><span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold">Completed</span></td>
-                                </tr>
+                                <div key={d.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <p className="font-bold text-gray-800 text-base">{d.donorName}</p>
+                                        <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Completed</span>
+                                    </div>
+                                    <div className="space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Amount</span>
+                                            <span className="font-bold text-green-600">KES {d.amount.toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Method</span>
+                                            <span className="text-gray-800">{d.method}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Date</span>
+                                            <span className="text-gray-800">{d.date}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center pt-2 mt-2 border-t border-gray-200">
+                                            <span className="text-gray-500">Reference</span>
+                                            <span className="font-mono text-xs text-gray-600">{d.reference}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             ))}
-                            </tbody>
-                        </table>
+                        </div>
+
+                        {/* Desktop Table View */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-sm text-left">
+                                <thead className="text-xs text-gray-500 uppercase bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3">Donor</th>
+                                    <th className="px-6 py-3">Amount</th>
+                                    <th className="px-6 py-3">Method</th>
+                                    <th className="px-6 py-3">Reference</th>
+                                    <th className="px-6 py-3">Date</th>
+                                    <th className="px-6 py-3">Status</th>
+                                </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                {donations.map(d => (
+                                    <tr key={d.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 font-medium">{d.donorName}</td>
+                                        <td className="px-6 py-4 text-green-600 font-bold">KES {d.amount.toLocaleString()}</td>
+                                        <td className="px-6 py-4">{d.method}</td>
+                                        <td className="px-6 py-4 font-mono text-xs">{d.reference}</td>
+                                        <td className="px-6 py-4">{d.date}</td>
+                                        <td className="px-6 py-4"><span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold">Completed</span></td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
                 {/* Settings View */}
                 {activeTab === 'settings' && (
                     <div className="space-y-8">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <h3 className="text-lg font-bold text-gray-900 mb-6 border-b pb-2">Home Page Hero</h3>
-                            <form onSubmit={handleSaveHero} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Main Title</label>
-                                    <input type="text" className="w-full border p-2 rounded" value={heroForm.title} onChange={e => setHeroForm({...heroForm, title: e.target.value})} />
+                        {/* About Page Settings */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+                            <form onSubmit={handleSaveAbout}>
+                                <div className="p-6 border-b border-gray-200">
+                                    <h3 className="text-lg font-bold text-gray-900">About Page Content</h3>
+                                    <p className="text-sm text-gray-500 mt-1">Customize the text and images that appear on your public About Us page.</p>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Subtitle</label>
-                                    <textarea className="w-full border p-2 rounded" value={heroForm.subtitle} onChange={e => setHeroForm({...heroForm, subtitle: e.target.value})} />
+                                <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
+                                    {/* Column 1 */}
+                                    <div className="space-y-6">
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Hero Title</label>
+                                            <input type="text" className="w-full border-gray-300 rounded-md shadow-sm p-2" value={aboutForm.heroTitle} onChange={e => setAboutForm({...aboutForm, heroTitle: e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Mission Title</label>
+                                            <input type="text" className="w-full border-gray-300 rounded-md shadow-sm p-2" value={aboutForm.missionTitle} onChange={e => setAboutForm({...aboutForm, missionTitle: e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">About Page Image</label>
+                                            <input type="file" onChange={handleAboutImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"/>
+                                            {aboutForm.imageUrl && <img src={aboutForm.imageUrl} alt="About Preview" className="mt-4 h-32 w-full object-cover rounded-md"/>}
+                                        </div>
+                                    </div>
+                                    {/* Column 2 */}
+                                    <div className="space-y-6">
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Content Paragraph 1</label>
+                                            <textarea rows={5} className="w-full border-gray-300 rounded-md shadow-sm p-2" value={aboutForm.contentParagraph1} onChange={e => setAboutForm({...aboutForm, contentParagraph1: e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Content Paragraph 2</label>
+                                            <textarea rows={5} className="w-full border-gray-300 rounded-md shadow-sm p-2" value={aboutForm.contentParagraph2} onChange={e => setAboutForm({...aboutForm, contentParagraph2: e.target.value})} />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Background Image</label>
-                                    <input type="file" onChange={handleHeroImageChange} className="block w-full text-sm text-gray-500 mt-1"/>
-                                    {heroForm.backgroundImageUrl && <img src={heroForm.backgroundImageUrl} alt="Hero" className="mt-2 h-32 object-cover rounded"/>}
+                                <div className="bg-gray-50 px-6 py-4 rounded-b-xl text-right">
+                                    <button type="submit" className="bg-kenya-green text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-sm hover:bg-green-700 transition-colors">Save About Page</button>
                                 </div>
-                                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">Save Changes</button>
                             </form>
                         </div>
 
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <h3 className="text-lg font-bold text-gray-900 mb-6 border-b pb-2">About Page Content</h3>
-                            <form onSubmit={handleSaveAbout} className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <input type="text" placeholder="Hero Title" className="border p-2 rounded" value={aboutForm.heroTitle} onChange={e => setAboutForm({...aboutForm, heroTitle: e.target.value})} />
-                                    <input type="text" placeholder="Mission Title" className="border p-2 rounded" value={aboutForm.missionTitle} onChange={e => setAboutForm({...aboutForm, missionTitle: e.target.value})} />
+                        {/* Contact Page Settings */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+                            <form onSubmit={handleSaveContact}>
+                                <div className="p-6 border-b border-gray-200">
+                                    <h3 className="text-lg font-bold text-gray-900">Contact & Address Details</h3>
+                                    <p className="text-sm text-gray-500 mt-1">Update your public contact information.</p>
                                 </div>
-                                <textarea placeholder="Content Paragraph 1" rows={3} className="w-full border p-2 rounded" value={aboutForm.contentParagraph1} onChange={e => setAboutForm({...aboutForm, contentParagraph1: e.target.value})} />
-                                <textarea placeholder="Content Paragraph 2" rows={3} className="w-full border p-2 rounded" value={aboutForm.contentParagraph2} onChange={e => setAboutForm({...aboutForm, contentParagraph2: e.target.value})} />
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">About Image</label>
-                                    <input type="file" onChange={handleAboutImageChange} className="block w-full text-sm text-gray-500 mt-1"/>
-                                    {aboutForm.imageUrl && <img src={aboutForm.imageUrl} alt="About" className="mt-2 h-32 object-cover rounded"/>}
+                                <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Physical Address</label>
+                                        <textarea placeholder="Address" rows={4} className="w-full border-gray-300 rounded-md shadow-sm p-2" value={contactForm.address} onChange={e => setContactForm({...contactForm, address: e.target.value})} />
+                                    </div>
+                                    <div className="space-y-6">
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Primary Phone</label>
+                                            <input type="text" className="w-full border-gray-300 rounded-md shadow-sm p-2" value={contactForm.phone1} onChange={e => setContactForm({...contactForm, phone1: e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Secondary Phone</label>
+                                            <input type="text" className="w-full border-gray-300 rounded-md shadow-sm p-2" value={contactForm.phone2} onChange={e => setContactForm({...contactForm, phone2: e.target.value})} />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Primary Email</label>
+                                        <input type="email" className="w-full border-gray-300 rounded-md shadow-sm p-2" value={contactForm.email1} onChange={e => setContactForm({...contactForm, email1: e.target.value})} />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Donations Email</label>
+                                        <input type="email" className="w-full border-gray-300 rounded-md shadow-sm p-2" value={contactForm.email2} onChange={e => setContactForm({...contactForm, email2: e.target.value})} />
+                                    </div>
                                 </div>
-
-                                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">Save Changes</button>
-                            </form>
-                        </div>
-
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <h3 className="text-lg font-bold text-gray-900 mb-6 border-b pb-2">Contact Details</h3>
-                            <form onSubmit={handleSaveContact} className="space-y-4">
-                                <textarea placeholder="Address" className="w-full border p-2 rounded" value={contactForm.address} onChange={e => setContactForm({...contactForm, address: e.target.value})} />
-                                <div className="grid grid-cols-2 gap-4">
-                                    <input type="text" placeholder="Phone 1" className="border p-2 rounded" value={contactForm.phone1} onChange={e => setContactForm({...contactForm, phone1: e.target.value})} />
-                                    <input type="text" placeholder="Phone 2" className="border p-2 rounded" value={contactForm.phone2} onChange={e => setContactForm({...contactForm, phone2: e.target.value})} />
-                                    <input type="text" placeholder="Email 1" className="border p-2 rounded" value={contactForm.email1} onChange={e => setContactForm({...contactForm, email1: e.target.value})} />
-                                    <input type="text" placeholder="Email 2" className="border p-2 rounded" value={contactForm.email2} onChange={e => setContactForm({...contactForm, email2: e.target.value})} />
+                                <div className="bg-gray-50 px-6 py-4 rounded-b-xl text-right">
+                                    <button type="submit" className="bg-kenya-green text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-sm hover:bg-green-700 transition-colors">Save Contact Details</button>
                                 </div>
-                                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">Save Changes</button>
                             </form>
                         </div>
                     </div>
