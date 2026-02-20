@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import type { Story, MediaType, ApplicationForm, Donation, HeroContent, AboutContent, ContactContent, Program } from '../types';
 
-// Mock Donations Data
+// Mock Donations.tsx Data
 const MOCK_DONATIONS: Donation[] = [
     { id: 'TX1001', donorName: 'John Kamau', amount: 5000, method: 'M-Pesa', date: '2023-10-25', status: 'Completed', reference: 'QHJ892KL' },
     { id: 'TX1002', donorName: 'Sarah Smith', amount: 12000, method: 'Card', date: '2023-10-24', status: 'Completed', reference: 'VISA-4242' },
@@ -1099,7 +1099,7 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                     </div>
                 )}
 
-                {/* Donations View */}
+                {/* Donations.tsx View */}
                 {activeTab === 'donations' && (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="p-6 border-b border-gray-100">

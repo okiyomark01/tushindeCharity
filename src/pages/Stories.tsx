@@ -1,184 +1,48 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Heart, MessageCircle, Send, PlayCircle, ArrowLeft, MapPin, Calendar, User, Share2, X, ChevronLeft, ChevronRight, HeartHandshake, ArrowRight, Facebook, Instagram, Link as LinkIcon, Check, Copy } from 'lucide-react';
-import { type Story, type Comment, Page } from '../types';
-
+import React, {useState, useEffect, useRef} from 'react';
+import {
+    Heart,
+    MessageCircle,
+    Send,
+    PlayCircle,
+    ArrowLeft,
+    MapPin,
+    Calendar,
+    User,
+    Share2,
+    X,
+    ChevronLeft,
+    ChevronRight,
+    HeartHandshake,
+    ArrowRight,
+    Facebook,
+    Instagram,
+    Link as LinkIcon,
+    Check,
+    Copy
+} from 'lucide-react';
+import {type Story, type Comment, Page} from '../types';
+import "../assets/updates.css"
+import {DonationsList} from "./Donations.tsx";
+import StoriesSlider from "./StoriesSlider.tsx";
+import {DEFAULT_STORIES} from "../hook/useStories.ts";
 // Custom Icons for brands
-const XLogo = ({ className }: { className?: string }) => (
+const XLogo = ({className}: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        <path
+            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
     </svg>
 );
 
-const TikTokLogo = ({ className }: { className?: string }) => (
+const TikTokLogo = ({className}: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+        <path
+            d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
     </svg>
 );
 
 const REACTION_EMOJIS = ['❤️‍🩹', '🙏', '💐', '💚', '✨', '👏'];
 
-const DEFAULT_STORIES: Story[] = [
-    {
-        id: '1',
-        name: "Mama Wanjiku",
-        location: "Nyeri",
-        mediaUrl: "https://picsum.photos/id/1062/800/600",
-        mediaType: 'image',
-        title: "A Business Reborn",
-        content: "After losing her vegetable stall to floods, Mama Wanjiku received a KES 15,000 grant. She now runs a thriving grocery shop and employs two youth. The grant allowed her to rebuild the structure with stronger materials and restock her inventory. 'I never thought I would recover,' she says, 'but now I am dreaming bigger than before.' Her success has inspired other women in the market to form a savings group.",
-        likes: 124,
-        comments: [
-            { id: 'c1', author: 'Jane Doe', text: 'So inspiring!', date: new Date().toISOString() }
-        ],
-        date: new Date().toISOString(),
-        gallery: [
-            "https://picsum.photos/id/1062/800/600",
-            "https://picsum.photos/id/225/800/600",
-            "https://picsum.photos/id/292/800/600"
-        ],
-        raised: 15000,
-        goal: 50000,
-        category: 'Business',
-        donorCount: 42,
-        recentDonors: [
-            { name: "Sarah M.", amount: 500 },
-            { name: "John K.", amount: 1000 },
-            { name: "Anonymous", amount: 200 },
-            { name: "Peter W.", amount: 1500 },
-        ]
-    },
-    {
-        id: '2',
-        name: "Community Water Project",
-        location: "Turkana",
-        mediaUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-        mediaType: 'video',
-        title: "Clean Water for All",
-        content: "Watch the moment clean water flowed in the village for the first time. Thanks to the new solar-powered borehole, women no longer walk 10km a day for water. This project serves over 500 households and has significantly reduced waterborne diseases in the area. The joy on the children's faces as they splashed in the clean water was a sight to behold.",
-        likes: 342,
-        comments: [
-            { id: 'c2', author: 'John Smith', text: 'This is incredible progress.', date: new Date().toISOString() }
-        ],
-        date: new Date().toISOString(),
-        raised: 450000,
-        goal: 600000,
-        category: 'Community',
-        donorCount: 315,
-        recentDonors: [
-            { name: "Global Partners", amount: 50000 },
-            { name: "Anonymous", amount: 5000 },
-            { name: "Mary J.", amount: 2500 },
-            { name: "David L.", amount: 1000 },
-        ]
-    },
-    {
-        id: '3',
-        name: "Kevin Omondi",
-        location: "Kisumu",
-        mediaUrl: "https://picsum.photos/id/1005/800/600",
-        mediaType: 'image',
-        title: "Walking Again",
-        content: "Kevin needed a prosthetic leg after an accident. Thanks to our donors, he received a custom fitting and is back to playing football. The rehabilitation process was tough, but Kevin's determination never wavered. He now coaches a local youth team and advocates for disability rights in his community.",
-        likes: 89,
-        comments: [],
-        date: new Date().toISOString(),
-        raised: 35000,
-        goal: 80000,
-        category: 'Medical',
-        donorCount: 56,
-        recentDonors: [
-            { name: "Team Cheza", amount: 10000 },
-            { name: "Anonymous", amount: 500 },
-            { name: "Grace O.", amount: 1000 },
-        ]
-    },
-    {
-        id: '4',
-        name: "Halima Juma",
-        location: "Mombasa",
-        mediaUrl: "https://picsum.photos/id/338/800/600",
-        mediaType: 'image',
-        title: "First in the Family",
-        content: "Halima is the first in her family to attend university. Our scholarship fund covers her Engineering degree tuition at JKUAT. She plans to specialize in civil engineering to help build better infrastructure in her hometown. 'Education is the key to unlocking potential,' Halima believes.",
-        likes: 256,
-        comments: [],
-        date: new Date().toISOString(),
-        raised: 28000,
-        goal: 80000,
-        category: 'Education',
-        donorCount: 89,
-        recentDonors: [
-            { name: "Education First", amount: 5000 },
-            { name: "Ali B.", amount: 2000 },
-            { name: "Anonymous", amount: 500 },
-            { name: "Zara Y.", amount: 1500 },
-        ]
-    },
-    {
-        id: '5',
-        name: "James Kamau",
-        location: "Kiambu",
-        mediaUrl: "https://picsum.photos/id/1025/800/600",
-        mediaType: 'image',
-        title: "Emergency Relief",
-        content: "When fire destroyed his home, our emergency response team provided shelter, food, and clothes for James and his 3 children within 24 hours. The swift action helped stabilize the family during a traumatic time. They are now in temporary housing and working towards a permanent solution.",
-        likes: 45,
-        comments: [],
-        date: new Date().toISOString(),
-        raised: 15000,
-        goal: 100000,
-        category: 'Emergency',
-        donorCount: 25,
-        recentDonors: [
-            { name: "Neighborhood Watch", amount: 5000 },
-            { name: "Anonymous", amount: 200 },
-            { name: "Pastor John", amount: 1000 },
-        ]
-    },
-    {
-        id: '6',
-        name: "Sarah Akoth",
-        location: "Siaya",
-        mediaUrl: "https://picsum.photos/id/1012/800/600",
-        mediaType: 'image',
-        title: "Drought Resilience",
-        content: "With the new irrigation kit provided by Tushinde, Sarah's farm is now yielding crops even during the dry season. She grows kale and spinach, supplying the local school and ensuring her children have nutritious meals.",
-        likes: 67,
-        comments: [],
-        date: new Date().toISOString(),
-        raised: 12000,
-        goal: 40000,
-        category: 'Business',
-        donorCount: 18,
-        recentDonors: [
-            { name: "AgriSupport", amount: 2500 },
-            { name: "Anonymous", amount: 100 },
-            { name: "Tom M.", amount: 500 },
-        ]
-    },
-    {
-        id: '7',
-        name: "John & Mary",
-        location: "Nakuru",
-        mediaUrl: "https://picsum.photos/id/1020/800/600",
-        mediaType: 'image',
-        title: "A Home Rebuilt",
-        content: "After a landslide destroyed their home, John and Mary received emergency shelter assistance. They are now rebuilding on safer ground with materials provided by our donors.",
-        likes: 45,
-        comments: [],
-        date: new Date().toISOString(),
-        raised: 85000,
-        goal: 150000,
-        category: 'Emergency',
-        donorCount: 112,
-        recentDonors: [
-            { name: "Relief Corp", amount: 10000 },
-            { name: "Anonymous", amount: 500 },
-            { name: "Esther K.", amount: 2000 },
-            { name: "Mike T.", amount: 1000 },
-        ]
-    }
-];
+
 
 // Helper to get story ID from URL
 const getStoryIdFromUrl = () => {
@@ -187,8 +51,10 @@ const getStoryIdFromUrl = () => {
     return params.get('story');
 };
 
+
+
 // Helper Component for cycling donors
-const DonorTicker = ({ donors }: { donors?: { name: string; amount: number }[] }) => {
+const DonorTicker = ({donors}: { donors?: { name: string; amount: number }[] }) => {
     const [index, setIndex] = useState(0);
     const [fade, setFade] = useState(true);
 
@@ -213,7 +79,8 @@ const DonorTicker = ({ donors }: { donors?: { name: string; amount: number }[] }
 
     return (
         <span className={`transition-opacity duration-300 inline-block ${fade ? 'opacity-100' : 'opacity-0'}`}>
-            <span className="font-bold text-gray-900">{current.name || 'Anonymous'}</span> donated KES {(current.amount || 0).toLocaleString()}
+            <span
+                className="font-bold text-gray-900">{current.name || 'Anonymous'}</span> donated KES {(current.amount || 0).toLocaleString()}
         </span>
     );
 };
@@ -226,7 +93,7 @@ interface StoriesProps {
     onStoryStateChange?: (isOpen: boolean) => void;
 }
 
-export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDonateButton, onStoryStateChange }) => {
+export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDonateButton, onStoryStateChange}) => {
     // Initialize state lazily to avoid setState in useEffect
     const [stories, setStories] = useState<Story[]>(() => {
         const stored = localStorage.getItem('stories');
@@ -321,7 +188,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
             console.warn("History update failed:", e);
         }
         // Dispatch popstate event to notify other listeners
-        window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
+        window.dispatchEvent(new PopStateEvent('popstate', {state: {}}));
 
         setSelectedStoryId(id);
         setCurrentSlide(0);
@@ -366,7 +233,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                     setShowStickyFooter(false);
                 }
             },
-            { threshold: 0 }
+            {threshold: 0}
         );
 
         if (topButtonsRef.current) {
@@ -381,8 +248,8 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
 
     // Carousel Media Preparation
     const allMedia = activeStory ? [
-        { type: activeStory.mediaType, url: activeStory.mediaUrl },
-        ...(activeStory.gallery?.map(url => ({ type: 'image' as const, url })) || [])
+        {type: activeStory.mediaType, url: activeStory.mediaUrl},
+        ...(activeStory.gallery?.map(url => ({type: 'image' as const, url})) || [])
     ] : [];
 
     // Fundraising Circle Calculations (Detail View)
@@ -411,12 +278,12 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
     // Scroll buttons for desktop
     const scrollPrev = (e: React.MouseEvent) => {
         e.stopPropagation();
-        scrollContainerRef.current?.scrollBy({ left: -scrollContainerRef.current.clientWidth, behavior: 'smooth' });
+        scrollContainerRef.current?.scrollBy({left: -scrollContainerRef.current.clientWidth, behavior: 'smooth'});
     };
 
     const scrollNext = (e: React.MouseEvent) => {
         e.stopPropagation();
-        scrollContainerRef.current?.scrollBy({ left: scrollContainerRef.current.clientWidth, behavior: 'smooth' });
+        scrollContainerRef.current?.scrollBy({left: scrollContainerRef.current.clientWidth, behavior: 'smooth'});
     };
 
     // Lightbox Controls
@@ -459,7 +326,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
         e.stopPropagation(); // Prevent opening story if clicking like button
         const updated = stories.map(story => {
             if (story.id === id) {
-                return { ...story, likes: story.likes + 1 };
+                return {...story, likes: story.likes + 1};
             }
             return story;
         });
@@ -481,17 +348,17 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
 
         const updated = stories.map(story => {
             if (story.id === storyId) {
-                return { ...story, comments: [...story.comments, newComment] };
+                return {...story, comments: [...story.comments, newComment]};
             }
             return story;
         });
 
         updateStories(updated);
-        setCommentInput({ ...commentInput, [storyId]: '' });
+        setCommentInput({...commentInput, [storyId]: ''});
     };
 
     const handleInputChange = (storyId: string, value: string) => {
-        setCommentInput({ ...commentInput, [storyId]: value });
+        setCommentInput({...commentInput, [storyId]: value});
     };
 
     const handleDonate = (e: React.MouseEvent) => {
@@ -535,43 +402,54 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
         if (!shareModalOpen) return null;
 
         return (
-            <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4" onClick={closeShareModal}>
+            <div
+                className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+                onClick={closeShareModal}>
                 <div
                     className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 transform transition-all animate-slide-up sm:animate-fade-in"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="text-xl font-bold text-gray-900">Share this story</h3>
-                        <button onClick={closeShareModal} className="text-gray-500 hover:text-gray-900 p-1 bg-gray-100 rounded-full">
-                            <X className="w-5 h-5" />
+                        <button onClick={closeShareModal}
+                                className="text-gray-500 hover:text-gray-900 p-1 bg-gray-100 rounded-full">
+                            <X className="w-5 h-5"/>
                         </button>
                     </div>
 
                     <div className="grid grid-cols-4 gap-4 mb-6">
-                        <button onClick={() => handleSocialShare('facebook')} className="flex flex-col items-center gap-2 group">
-                            <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                <Facebook className="w-7 h-7" />
+                        <button onClick={() => handleSocialShare('facebook')}
+                                className="flex flex-col items-center gap-2 group">
+                            <div
+                                className="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                <Facebook className="w-7 h-7"/>
                             </div>
                             <span className="text-xs font-medium text-gray-600">Facebook</span>
                         </button>
 
-                        <button onClick={() => handleSocialShare('x')} className="flex flex-col items-center gap-2 group">
-                            <div className="w-14 h-14 bg-gray-100 text-gray-900 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
-                                <XLogo className="w-6 h-6" />
+                        <button onClick={() => handleSocialShare('x')}
+                                className="flex flex-col items-center gap-2 group">
+                            <div
+                                className="w-14 h-14 bg-gray-100 text-gray-900 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
+                                <XLogo className="w-6 h-6"/>
                             </div>
                             <span className="text-xs font-medium text-gray-600">X</span>
                         </button>
 
-                        <button onClick={() => handleSocialShare('instagram')} className="flex flex-col items-center gap-2 group">
-                            <div className="w-14 h-14 bg-pink-50 text-pink-600 rounded-full flex items-center justify-center group-hover:bg-gradient-to-tr group-hover:from-yellow-400 group-hover:via-red-500 group-hover:to-purple-600 group-hover:text-white transition-all">
-                                <Instagram className="w-7 h-7" />
+                        <button onClick={() => handleSocialShare('instagram')}
+                                className="flex flex-col items-center gap-2 group">
+                            <div
+                                className="w-14 h-14 bg-pink-50 text-pink-600 rounded-full flex items-center justify-center group-hover:bg-gradient-to-tr group-hover:from-yellow-400 group-hover:via-red-500 group-hover:to-purple-600 group-hover:text-white transition-all">
+                                <Instagram className="w-7 h-7"/>
                             </div>
                             <span className="text-xs font-medium text-gray-600">Instagram</span>
                         </button>
 
-                        <button onClick={() => handleSocialShare('tiktok')} className="flex flex-col items-center gap-2 group">
-                            <div className="w-14 h-14 bg-gray-100 text-gray-900 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
-                                <TikTokLogo className="w-6 h-6" />
+                        <button onClick={() => handleSocialShare('tiktok')}
+                                className="flex flex-col items-center gap-2 group">
+                            <div
+                                className="w-14 h-14 bg-gray-100 text-gray-900 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
+                                <TikTokLogo className="w-6 h-6"/>
                             </div>
                             <span className="text-xs font-medium text-gray-600">TikTok</span>
                         </button>
@@ -580,7 +458,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                     <div className="relative">
                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
                             <div className="p-2 bg-white rounded-lg shadow-sm">
-                                <LinkIcon className="w-5 h-5 text-gray-400" />
+                                <LinkIcon className="w-5 h-5 text-gray-400"/>
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-xs text-gray-500 mb-0.5">Page Link</p>
@@ -590,12 +468,13 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                 onClick={() => handleSocialShare('copy')}
                                 className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${copied ? 'bg-green-100 text-green-700' : 'bg-gray-900 text-white hover:bg-gray-800'}`}
                             >
-                                {copied ? <Check className="w-4 h-4"/> : <Copy className="w-4 h-4" />}
+                                {copied ? <Check className="w-4 h-4"/> : <Copy className="w-4 h-4"/>}
                                 {copied ? 'Copied!' : 'Copy'}
                             </button>
                         </div>
                         {copied && (
-                            <div className="absolute top-full left-0 right-0 text-center mt-2 text-xs text-green-600 font-medium animate-fade-in">
+                            <div
+                                className="absolute top-full left-0 right-0 text-center mt-2 text-xs text-green-600 font-medium animate-fade-in">
                                 Link copied! You can now paste it in your app.
                             </div>
                         )}
@@ -621,11 +500,12 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                             onClick={() => handleStorySelection(null)}
                             className="flex items-center gap-2 text-gray-600 hover:text-kenya-green font-medium mb-4 sm:mb-6 transition-colors"
                         >
-                            <ArrowLeft className="w-5 h-5" /> Back to Stories
+                            <ArrowLeft className="w-5 h-5"/> Back to Stories
                         </button>
                     </div>
 
-                    <div className="bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-xl overflow-hidden border-y sm:border border-gray-100">
+                    <div
+                        className="bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-xl overflow-hidden border-y sm:border border-gray-100">
 
                         {/* Media Carousel */}
                         <div className="w-full relative group bg-black sm:rounded-t-2xl overflow-hidden shadow-sm">
@@ -633,7 +513,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                 ref={scrollContainerRef}
                                 onScroll={handleScroll}
                                 className="flex w-full overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
-                                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                                style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}
                             >
                                 {allMedia.map((media, idx) => (
                                     <div
@@ -655,14 +535,16 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                             />
                                         )}
                                         {/* Mobile gradient overlay for dots visibility */}
-                                        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                                        <div
+                                            className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"/>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Dots Indicator */}
                             {allMedia.length > 1 && (
-                                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10 pointer-events-none">
+                                <div
+                                    className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10 pointer-events-none">
                                     {allMedia.map((_, idx) => (
                                         <div
                                             key={idx}
@@ -679,13 +561,13 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                         className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-sm transition-all hidden md:block opacity-0 group-hover:opacity-100"
                                         onClick={scrollPrev}
                                     >
-                                        <ChevronLeft className="w-6 h-6" />
+                                        <ChevronLeft className="w-6 h-6"/>
                                     </button>
                                     <button
                                         className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-sm transition-all hidden md:block opacity-0 group-hover:opacity-100"
                                         onClick={scrollNext}
                                     >
-                                        <ChevronRight className="w-6 h-6" />
+                                        <ChevronRight className="w-6 h-6"/>
                                     </button>
                                 </>
                             )}
@@ -729,17 +611,19 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                         raised of KES {activeStory.goal.toLocaleString()}
                                     </span>
                                 </div>
-                                <div className="flex items-center text-sm text-gray-600 mt-1 cursor-pointer hover:underline group">
+                                <div
+                                    className="flex items-center text-sm text-gray-600 mt-1 cursor-pointer hover:underline group">
                                     <span className="truncate max-w-[200px] sm:max-w-xs font-medium flex-1">
-                                        <DonorTicker donors={activeStory.recentDonors} />
+                                        <DonorTicker donors={activeStory.recentDonors}/>
                                     </span>
-                                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 ml-0.5" />
+                                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 ml-0.5"/>
                                 </div>
                             </div>
                         </div>
 
                         {/* Mobile Action Buttons (Below Progress) - REF ATTACHED HERE */}
-                        <div ref={topButtonsRef} className="flex sm:hidden items-center gap-3 px-4 py-4 border-b border-gray-100 bg-white">
+                        <div ref={topButtonsRef}
+                             className="flex sm:hidden items-center gap-3 px-4 py-4 border-b border-gray-100 bg-white">
                             <button
                                 onClick={() => setPage?.(Page.DONATE)}
                                 className="flex-1 bg-[#d9f99d] text-[#14532d] py-3.5 rounded-full font-bold text-base shadow-sm hover:bg-[#bef264] transition-colors flex items-center justify-center gap-2"
@@ -754,23 +638,29 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                             </button>
                         </div>
 
+
                         <div className="p-4 sm:p-12">
                             {/* Detail Header */}
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-gray-100 pb-8">
+                            <div
+                                className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-gray-100 pb-8">
                                 <div>
                                     <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">{activeStory.title}</h1>
                                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                                         <div className="flex items-center gap-1">
-                                            <User className="w-4 h-4" />
+                                            <User className="w-4 h-4"/>
                                             <span>{activeStory.name}</span>
                                         </div>
                                         <div className="flex items-center gap-1">
-                                            <MapPin className="w-4 h-4" />
+                                            <MapPin className="w-4 h-4"/>
                                             <span>{activeStory.location}</span>
                                         </div>
                                         <div className="flex items-center gap-1">
-                                            <Calendar className="w-4 h-4" />
-                                            <span>{new Date(activeStory.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                            <Calendar className="w-4 h-4"/>
+                                            <span>{new Date(activeStory.date).toLocaleDateString(undefined, {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -779,8 +669,9 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                         onClick={(e) => handleLike(e, activeStory.id)}
                                         className="hidden sm:flex flex-col items-center gap-1 text-gray-500 hover:text-kenya-red transition-colors group"
                                     >
-                                        <div className="bg-gray-100 p-3 rounded-full group-hover:bg-red-50 transition-colors">
-                                            <Heart className="w-6 h-6 group-hover:fill-current" />
+                                        <div
+                                            className="bg-gray-100 p-3 rounded-full group-hover:bg-red-50 transition-colors">
+                                            <Heart className="w-6 h-6 group-hover:fill-current"/>
                                         </div>
                                         <span className="text-xs font-bold">{activeStory.likes}</span>
                                     </button>
@@ -789,8 +680,9 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                         onClick={(e) => handleShareClick(e, activeStory)}
                                         className="hidden sm:flex flex-col items-center gap-1 text-gray-500 hover:text-blue-600 transition-colors group"
                                     >
-                                        <div className="bg-gray-100 p-3 rounded-full group-hover:bg-blue-50 transition-colors">
-                                            <Share2 className="w-6 h-6" />
+                                        <div
+                                            className="bg-gray-100 p-3 rounded-full group-hover:bg-blue-50 transition-colors">
+                                            <Share2 className="w-6 h-6"/>
                                         </div>
                                         <span className="text-xs font-bold">Share</span>
                                     </button>
@@ -811,13 +703,15 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                             </div>
 
                             {/* Mobile Reactions Bar (New Addition) */}
-                            <div className="flex sm:hidden items-center justify-between py-4 border-t border-gray-100 mb-4 px-2">
+                            <div
+                                className="flex sm:hidden items-center justify-between py-4 border-t border-gray-100 mb-4 px-2">
 
                                 {/* React Button & Popover Container */}
                                 <div className="relative" ref={reactionsRef}>
                                     {/* Popover/Floating Menu */}
                                     {showReactions && (
-                                        <div className="absolute bottom-full left-0 mb-3 bg-white shadow-xl rounded-full p-2 border border-gray-100 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 z-20 whitespace-nowrap overflow-x-auto max-w-[80vw]">
+                                        <div
+                                            className="absolute bottom-full left-0 mb-3 bg-white shadow-xl rounded-full p-2 border border-gray-100 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 z-20 whitespace-nowrap overflow-x-auto max-w-[80vw]">
                                             {REACTION_EMOJIS.map((emoji) => (
                                                 <button
                                                     key={emoji}
@@ -842,9 +736,11 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                         className={`flex items-center gap-2 px-3 py-2 rounded-full transition-colors ${showReactions ? 'bg-green-50 text-kenya-green' : 'text-gray-600 hover:bg-gray-50'}`}
                                     >
                                         <div className="relative">
-                                            <Heart className={`w-6 h-6 ${showReactions ? 'fill-current' : ''}`} />
-                                            <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-3.5 h-3.5 flex items-center justify-center shadow-sm border border-gray-100">
-                                                <span className="text-[10px] text-gray-500 font-bold leading-none">+</span>
+                                            <Heart className={`w-6 h-6 ${showReactions ? 'fill-current' : ''}`}/>
+                                            <div
+                                                className="absolute -bottom-1 -right-1 bg-white rounded-full w-3.5 h-3.5 flex items-center justify-center shadow-sm border border-gray-100">
+                                                <span
+                                                    className="text-[10px] text-gray-500 font-bold leading-none">+</span>
                                             </div>
                                         </div>
                                         <span className="text-sm font-semibold">React</span>
@@ -856,10 +752,12 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                     {/* Static Emoji Summary - visual only */}
                                     <div className="flex items-center -space-x-1">
                                         {['❤️', '🙏', '✨'].map((emoji, i) => (
-                                            <span key={i} className="text-xs bg-white rounded-full border border-white relative z-10 flex items-center justify-center w-5 h-5">{emoji}</span>
+                                            <span key={i}
+                                                  className="text-xs bg-white rounded-full border border-white relative z-10 flex items-center justify-center w-5 h-5">{emoji}</span>
                                         ))}
                                     </div>
-                                    <span className="text-gray-900 font-bold text-sm underline decoration-gray-300 underline-offset-4">
+                                    <span
+                                        className="text-gray-900 font-bold text-sm underline decoration-gray-300 underline-offset-4">
                                         {activeStory.likes}
                                     </span>
                                 </div>
@@ -880,35 +778,59 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                     Share
                                 </button>
                             </div>
+                            {/*updates*/}
+                           <DonationsList/>
 
-                            {/* Donate Call to Action */}
-                            <div className="bg-green-50 rounded-xl p-8 mb-12 text-center border border-green-100">
-                                <h3 className="text-2xl font-serif font-bold text-gray-900 mb-3">Inspired by this story?</h3>
-                                <p className="text-gray-600 mb-6">Your donation can help more people like {activeStory.name} achieve their dreams.</p>
-                                <button
-                                    onClick={() => setPage?.(Page.DONATE)}
-                                    className="bg-kenya-red text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-red-700 transition-transform hover:scale-105 flex items-center gap-2 mx-auto"
-                                >
-                                    <HeartHandshake className="w-5 h-5" /> Donate Now
-                                </button>
-                            </div>
+                            {/*similar stories*/}
+                            <StoriesSlider
+                                onStorySelect={handleStorySelection}
+                                onViewAllClick={() => {
+                                    // Navigate to view all stories
+                                    if (setPage) {
+                                        setPage(Page.STORIES);
+                                    } else {
+                                        // Fallback URL update
+                                        const url = new URL(window.location.href);
+                                        url.searchParams.delete('story');
+                                        url.searchParams.set('page', 'stories');
+                                        window.history.pushState({}, '', '?' + url.searchParams.toString());
+                                        window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
+                                    }
+                                }}
+                            />                            {/* Donate Call to Action */}
+                            {/*<div className="bg-green-50 rounded-xl p-8 mb-12 text-center border border-green-100">*/}
+                            {/*    <h3 className="text-2xl font-serif font-bold text-gray-900 mb-3">Inspired by this*/}
+                            {/*        story?</h3>*/}
+                            {/*    <p className="text-gray-600 mb-6">Your donation can help more people*/}
+                            {/*        like {activeStory.name} achieve their dreams.</p>*/}
+                            {/*    <button*/}
+                            {/*        onClick={() => setPage?.(Page.DONATE)}*/}
+                            {/*        className="bg-kenya-red text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-red-700 transition-transform hover:scale-105 flex items-center gap-2 mx-auto"*/}
+                            {/*    >*/}
+                            {/*        <HeartHandshake className="w-5 h-5"/> Donate Now*/}
+                            {/*    </button>*/}
+                            {/*</div>*/}
 
                             {/* Comments Section */}
                             <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-8">
                                 <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                    <MessageCircle className="w-5 h-5" />
+                                    <MessageCircle className="w-5 h-5"/>
                                     Comments ({activeStory.comments.length})
                                 </h3>
 
                                 <div className="space-y-6 mb-8">
                                     {activeStory.comments.length === 0 ? (
-                                        <p className="text-gray-500 italic text-center py-4">No comments yet. Be the first to share your thoughts!</p>
+                                        <p className="text-gray-500 italic text-center py-4">No comments yet. Be the
+                                            first to share your thoughts!</p>
                                     ) : (
                                         activeStory.comments.map(comment => (
-                                            <div key={comment.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                                            <div key={comment.id}
+                                                 className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <span className="font-bold text-gray-900">{comment.author}</span>
-                                                    <span className="text-xs text-gray-400">{new Date(comment.date).toLocaleDateString()}</span>
+                                                        <span
+                                                            className="font-bold text-gray-900">{comment.author}</span>
+                                                    <span
+                                                        className="text-xs text-gray-400">{new Date(comment.date).toLocaleDateString()}</span>
                                                 </div>
                                                 <p className="text-gray-700">{comment.text}</p>
                                             </div>
@@ -916,7 +838,8 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                     )}
                                 </div>
 
-                                <form onSubmit={(e) => handleCommentSubmit(e, activeStory.id)} className="flex gap-2 sm:gap-4">
+                                <form onSubmit={(e) => handleCommentSubmit(e, activeStory.id)}
+                                      className="flex gap-2 sm:gap-4">
                                     <input
                                         type="text"
                                         placeholder="Add a public comment..."
@@ -931,7 +854,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                         disabled={!commentInput[activeStory.id]}
                                         className="bg-kenya-green text-white px-4 py-2 sm:px-6 rounded-lg font-bold hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center gap-2 whitespace-nowrap"
                                     >
-                                        <Send className="w-4 h-4" /> Post
+                                        <Send className="w-4 h-4"/> Post
                                     </button>
                                 </form>
                             </div>
@@ -941,7 +864,8 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
 
                 {/* Sticky Footer for Mobile (New) */}
                 {showStickyFooter && activeStory && (
-                    <div className="fixed bottom-0 left-0 right-0 bg-white z-[100] border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] rounded-t-2xl p-4 animate-slide-up sm:hidden">
+                    <div
+                        className="fixed bottom-0 left-0 right-0 bg-white z-[100] border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] rounded-t-2xl p-4 animate-slide-up sm:hidden">
                         {/* Progress Info Row */}
                         <div className="flex items-center gap-3 mb-4">
                             <div className="relative w-10 h-10 flex-shrink-0">
@@ -972,12 +896,15 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-baseline gap-1.5 flex-wrap">
-                                    <span className="font-bold text-gray-900 text-sm">KES {activeStory.raised.toLocaleString()}</span>
-                                    <span className="text-xs text-gray-500">raised of KES {activeStory.goal.toLocaleString()}</span>
+                                    <span
+                                        className="font-bold text-gray-900 text-sm">KES {activeStory.raised.toLocaleString()}</span>
+                                    <span
+                                        className="text-xs text-gray-500">raised of KES {activeStory.goal.toLocaleString()}</span>
                                 </div>
-                                <div className="text-xs text-gray-500 truncate flex items-center gap-1 mt-0.5 cursor-pointer">
-                                    <DonorTicker donors={activeStory.recentDonors} />
-                                    <ChevronRight className="w-3 h-3 text-gray-400" />
+                                <div
+                                    className="text-xs text-gray-500 truncate flex items-center gap-1 mt-0.5 cursor-pointer">
+                                    <DonorTicker donors={activeStory.recentDonors}/>
+                                    <ChevronRight className="w-3 h-3 text-gray-400"/>
                                 </div>
                             </div>
                         </div>
@@ -1002,13 +929,15 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
 
                 {/* Lightbox Modal */}
                 {lightboxIndex !== null && allMedia.length > 0 && (
-                    <div className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center animate-fade-in select-none" onClick={closeLightbox}>
+                    <div
+                        className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center animate-fade-in select-none"
+                        onClick={closeLightbox}>
                         {/* Close Button */}
                         <button
                             className="absolute top-6 right-6 text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors z-50"
                             onClick={closeLightbox}
                         >
-                            <X className="w-8 h-8" />
+                            <X className="w-8 h-8"/>
                         </button>
 
                         {/* Previous Button */}
@@ -1016,7 +945,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                             className="absolute left-4 text-white/70 hover:text-white p-4 hover:bg-white/10 rounded-full transition-colors hidden sm:block z-50"
                             onClick={prevLightboxImage}
                         >
-                            <ChevronLeft className="w-10 h-10" />
+                            <ChevronLeft className="w-10 h-10"/>
                         </button>
 
                         {/* Image */}
@@ -1044,11 +973,12 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                             className="absolute right-4 text-white/70 hover:text-white p-4 hover:bg-white/10 rounded-full transition-colors hidden sm:block z-50"
                             onClick={nextLightboxImage}
                         >
-                            <ChevronRight className="w-10 h-10" />
+                            <ChevronRight className="w-10 h-10"/>
                         </button>
 
                         {/* Counter */}
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/90 text-sm font-medium bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
+                        <div
+                            className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/90 text-sm font-medium bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
                             {lightboxIndex + 1} / {allMedia.length}
                         </div>
                     </div>
@@ -1098,7 +1028,8 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                 {/* Header */}
                                 <div className="p-4 flex items-center justify-between border-b border-gray-50">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold">
+                                        <div
+                                            className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold">
                                             {story.name.charAt(0)}
                                         </div>
                                         <div>
@@ -1115,14 +1046,16 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                 <div className="w-full relative">
                                     <div className="overflow-hidden relative">
                                         {story.mediaType === 'video' ? (
-                                            <div className="relative w-full aspect-video bg-gray-900 flex items-center justify-center">
+                                            <div
+                                                className="relative w-full aspect-video bg-gray-900 flex items-center justify-center">
                                                 <video
                                                     src={story.mediaUrl}
                                                     // Controls removed in preview to encourage clicking the card
                                                     className="w-full h-full object-contain pointer-events-none"
                                                 />
-                                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
-                                                    <PlayCircle className="w-12 h-12 text-white opacity-80" />
+                                                <div
+                                                    className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                                                    <PlayCircle className="w-12 h-12 text-white opacity-80"/>
                                                 </div>
                                             </div>
                                         ) : (
@@ -1136,7 +1069,8 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                 </div>
 
                                 {/* Fundraising Progress Widget (List View) */}
-                                <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                                <div
+                                    className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-gray-50/50">
                                     <div className="relative w-12 h-12 flex-shrink-0">
                                         <svg className="w-full h-full transform -rotate-90">
                                             <circle
@@ -1171,14 +1105,16 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                         </div>
                                         <div className="flex items-center text-xs text-gray-600 mt-0.5">
                                              <span className="truncate font-medium text-gray-500 flex-1">
-                                                <DonorTicker donors={story.recentDonors} />
+                                                <DonorTicker donors={story.recentDonors}/>
                                             </span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Mobile Action Buttons (List View) */}
-                                <div className="flex sm:hidden items-center gap-3 px-4 py-3 border-b border-gray-100 bg-white" onClick={(e) => e.stopPropagation()}>
+                                <div
+                                    className="flex sm:hidden items-center gap-3 px-4 py-3 border-b border-gray-100 bg-white"
+                                    onClick={(e) => e.stopPropagation()}>
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -1203,11 +1139,11 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                             onClick={(e) => handleLike(e, story.id)}
                                             className="flex items-center gap-2 text-gray-600 hover:text-kenya-red transition-colors group/like"
                                         >
-                                            <Heart className="w-6 h-6 group-hover/like:fill-current transition-colors" />
+                                            <Heart className="w-6 h-6 group-hover/like:fill-current transition-colors"/>
                                             <span className="font-medium">{story.likes} Likes</span>
                                         </button>
                                         <div className="flex items-center gap-2 text-gray-600">
-                                            <MessageCircle className="w-6 h-6" />
+                                            <MessageCircle className="w-6 h-6"/>
                                             <span className="font-medium">{story.comments.length} Comments</span>
                                         </div>
                                     </div>
@@ -1219,18 +1155,19 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                                     <span className="text-kenya-green text-sm font-bold mb-4 hover:underline">Read full story &rarr;</span>
 
                                     {/* Desktop Donate & Share Buttons */}
-                                    <div className="hidden sm:grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-gray-100">
+                                    <div
+                                        className="hidden sm:grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-gray-100">
                                         <button
                                             onClick={handleDonate}
                                             className="bg-kenya-red text-white py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-700 transition-colors shadow-sm"
                                         >
-                                            <HeartHandshake className="w-4 h-4" /> Donate
+                                            <HeartHandshake className="w-4 h-4"/> Donate
                                         </button>
                                         <button
                                             onClick={(e) => handleShareClick(e, story)}
                                             className="bg-gray-50 text-gray-700 border border-gray-200 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
                                         >
-                                            <Share2 className="w-4 h-4" /> Share
+                                            <Share2 className="w-4 h-4"/> Share
                                         </button>
                                     </div>
                                 </div>
@@ -1245,7 +1182,7 @@ export const Stories: React.FC<StoriesProps> = ({ setPage, limit, title, showDon
                             onClick={() => setPage?.(Page.STORIES)}
                             className="bg-white border-2 border-kenya-green text-kenya-green hover:bg-kenya-green hover:text-white px-8 py-3 rounded-full font-bold transition-all shadow-sm flex items-center gap-2 mx-auto"
                         >
-                            View More Stories <ArrowRight className="w-5 h-5" />
+                            View More Stories <ArrowRight className="w-5 h-5"/>
                         </button>
                     </div>
                 )}

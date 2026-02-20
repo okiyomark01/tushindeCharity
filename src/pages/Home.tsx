@@ -21,31 +21,31 @@ export const Home: React.FC<HomeProps> = ({ setPage, onStoryStateChange }) => {
             />
 
             {/* Stats Section */}
-            <div className="w-full px-4 sm:px-6 lg:px-8 py-12 bg-white">
-                <div className="bg-white shadow-xl rounded-xl p-8 max-w-7xl mx-auto border border-gray-100">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-gray-200">
-                        <div className="p-4">
-                            <div className="text-kenya-red font-bold text-4xl mb-2">5,200+</div>
-                            <div className="text-gray-600 font-medium">Lives Impacted</div>
-                        </div>
-                        <div className="p-4">
-                            <div className="text-kenya-green font-bold text-4xl mb-2">KSh 45M</div>
-                            <div className="text-gray-600 font-medium">Funds Raised</div>
-                        </div>
-                        <div className="p-4">
-                            <div className="text-kenya-black font-bold text-4xl mb-2">120+</div>
-                            <div className="text-gray-600 font-medium">Schools Supported</div>
-                        </div>
-                        <div className="p-4">
-                            <div className="text-kenya-red font-bold text-4xl mb-2">98%</div>
-                            <div className="text-gray-600 font-medium">Direct Aid</div>
-                        </div>
-                    </div>
-                    <div className="mt-8 text-center text-gray-500 italic border-t pt-4">
-                        "Together, we are transforming communities and restoring dignity to thousands of families across Kenya."
-                    </div>
-                </div>
-            </div>
+            {/*<div className="w-full px-4 sm:px-6 lg:px-8 py-12 bg-white">*/}
+            {/*    <div className="bg-white shadow-xl rounded-xl p-8 max-w-7xl mx-auto border border-gray-100">*/}
+            {/*        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-gray-200">*/}
+            {/*            <div className="p-4">*/}
+            {/*                <div className="text-kenya-red font-bold text-4xl mb-2">5,200+</div>*/}
+            {/*                <div className="text-gray-600 font-medium">Lives Impacted</div>*/}
+            {/*            </div>*/}
+            {/*            <div className="p-4">*/}
+            {/*                <div className="text-kenya-green font-bold text-4xl mb-2">KSh 45M</div>*/}
+            {/*                <div className="text-gray-600 font-medium">Funds Raised</div>*/}
+            {/*            </div>*/}
+            {/*            <div className="p-4">*/}
+            {/*                <div className="text-kenya-black font-bold text-4xl mb-2">120+</div>*/}
+            {/*                <div className="text-gray-600 font-medium">Schools Supported</div>*/}
+            {/*            </div>*/}
+            {/*            <div className="p-4">*/}
+            {/*                <div className="text-kenya-red font-bold text-4xl mb-2">98%</div>*/}
+            {/*                <div className="text-gray-600 font-medium">Direct Aid</div>*/}
+            {/*            </div>*/}
+            {/*        </div>*/}
+            {/*        <div className="mt-8 text-center text-gray-500 italic border-t pt-4">*/}
+            {/*            "Together, we are transforming communities and restoring dignity to thousands of families across Kenya."*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
 
             {/* Featured Areas */}
             <section className="pt-12 pb-3 md:py-20 bg-gray-50">

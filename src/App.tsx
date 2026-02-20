@@ -24,6 +24,17 @@ const getPageFromUrl = (): Page => {
   return Page.HOME;
 };
 
+// Scroll to top function
+const scrollToTop = (behavior: ScrollBehavior = 'auto') => {
+  if (typeof window !== 'undefined') {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: behavior
+    });
+  }
+};
+
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromUrl);
   const [isStoryOpen, setIsStoryOpen] = useState(false);
@@ -33,13 +44,25 @@ function App() {
     return sessionStorage.getItem('adminAuth') === 'true';
   });
 
+  // Scroll to top on initial page load/refresh
+  useEffect(() => {
+    // Use 'auto' for initial load to avoid animation on page refresh
+    scrollToTop('auto');
+  }, []);
+
+  // Scroll to top whenever the page changes
+  useEffect(() => {
+    // Use 'smooth' for navigation between pages
+    scrollToTop('smooth');
+  }, [currentPage]);
+
   // Handle browser back/forward buttons
   useEffect(() => {
     const handlePopState = () => {
       const newPage = getPageFromUrl();
       setCurrentPage(newPage);
-      // We don't force setIsStoryOpen(false) here because Stories.tsx
-      // has its own popstate listener to handle story closing.
+      // Scroll to top when using browser navigation
+      scrollToTop('smooth');
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -69,8 +92,7 @@ function App() {
 
     setCurrentPage(page);
     setIsStoryOpen(false);
-    // Scroll to top on new navigation only (let browser handle scroll on Back)
-    window.scrollTo(0, 0);
+    // Scroll to top is now handled by the useEffect above
   };
 
   const handleLogout = () => {
