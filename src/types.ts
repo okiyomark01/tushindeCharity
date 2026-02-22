@@ -37,7 +37,9 @@ export interface Story {
   category: 'Medical' | 'Education' | 'Emergency' | 'Business' | 'Community';
   donorCount?: number;
   recentDonors?: { name: string; amount: number }[];
-  isLive:boolean;
+  paybillNumber?: string;
+  accountNumber?: string;
+  isLive?: boolean;
 }
 
 export interface ApplicationForm {

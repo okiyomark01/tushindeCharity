@@ -22,9 +22,9 @@ import {
 } from 'lucide-react';
 import {type Story, type Comment, Page} from '../types';
 import "../assets/updates.css"
-import {DonationsList} from "./Donations.tsx";
-import StoriesSlider from "./StoriesSlider.tsx";
-import {DEFAULT_STORIES} from "../hook/useStories.ts";
+import {DonationsList} from "./Donations";
+import StoriesSlider from "./StoriesSlider";
+import { DEFAULT_STORIES } from '../services/data';
 // Custom Icons for brands
 const XLogo = ({className}: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -361,8 +361,11 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
         setCommentInput({...commentInput, [storyId]: value});
     };
 
-    const handleDonate = (e: React.MouseEvent) => {
+    const handleDonate = (e: React.MouseEvent, storyId: string) => {
         e.stopPropagation();
+        const url = new URL(window.location.href);
+        url.searchParams.set('story', storyId);
+        window.history.pushState({}, '', '?' + url.searchParams.toString());
         setPage?.(Page.DONATE);
     };
 
@@ -779,7 +782,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                                 </button>
                             </div>
                             {/*updates*/}
-                           <DonationsList/>
+                            <DonationsList/>
 
                             {/*similar stories*/}
                             <StoriesSlider
@@ -1116,10 +1119,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                                     className="flex sm:hidden items-center gap-3 px-4 py-3 border-b border-gray-100 bg-white"
                                     onClick={(e) => e.stopPropagation()}>
                                     <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setPage?.(Page.DONATE);
-                                        }}
+                                        onClick={(e) => handleDonate(e, story.id)}
                                         className="flex-1 bg-[#d9f99d] text-[#14532d] py-2.5 rounded-full font-bold text-sm shadow-sm hover:bg-[#bef264] transition-colors flex items-center justify-center gap-2"
                                     >
                                         Donate
@@ -1158,7 +1158,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                                     <div
                                         className="hidden sm:grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-gray-100">
                                         <button
-                                            onClick={handleDonate}
+                                            onClick={(e) => handleDonate(e, story.id)}
                                             className="bg-kenya-red text-white py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-700 transition-colors shadow-sm"
                                         >
                                             <HeartHandshake className="w-4 h-4"/> Donate
