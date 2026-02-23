@@ -137,6 +137,9 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
     const [storyToShare, setStoryToShare] = useState<Story | null>(null);
     const [copied, setCopied] = useState(false);
 
+    // Ref for the top of the stories container
+    const topRef = useRef<HTMLDivElement>(null);
+
     // Ensure default data is persisted if not present
     useEffect(() => {
         if (!localStorage.getItem('stories')) {
@@ -195,9 +198,6 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
         setShowReactions(false);
         setIsExpanded(false);
         setShowStickyFooter(false);
-
-        // Scroll to top when a story is selected
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     // Reset Scroll on story change (Side effect only)
@@ -205,7 +205,17 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
         if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollLeft = 0;
         }
-        // State resets moved to handleStorySelection to prevent cascading render warning
+
+        // Scroll to top when a story is opened
+        if (selectedStoryId) {
+            // Scroll to the absolute top of the page
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Fallback for some mobile browsers
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+            }, 100);
+        }
     }, [selectedStoryId]);
 
     // Close reactions when clicking outside
@@ -499,7 +509,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
             : activeStory.content.slice(0, TRUNCATE_LIMIT).trim() + "...";
 
         return (
-            <div className="bg-gray-50 py-0 sm:py-8 px-0 sm:px-6 lg:px-8 animate-fade-in relative">
+            <div ref={topRef} className="bg-gray-50 py-0 sm:py-8 px-0 sm:px-6 lg:px-8 animate-fade-in relative">
                 <div className="max-w-4xl mx-auto">
                     <div className="p-4 sm:p-0">
                         <button
@@ -997,7 +1007,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
 
     // Default View (List of Stories)
     return (
-        <div className="bg-gray-50 py-0 sm:py-12 relative">
+        <div ref={topRef} className="bg-gray-50 py-0 sm:py-12 relative">
             <div className="w-full px-0 sm:px-6 lg:px-8">
                 <div className="text-center mb-2 sm:mb-12 py-3 sm:py-0 px-4 sm:px-0">
                     <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 mb-2 sm:mb-4 leading-tight">{title || "Community Stories"}</h1>
