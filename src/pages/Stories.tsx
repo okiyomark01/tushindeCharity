@@ -109,7 +109,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                     // If raised is 0 or missing, give it a random meaningful start value so live updates look good
                     raised: (typeof s.raised === 'number' && s.raised > 0) ? s.raised : Math.floor(Math.random() * 20000) + 5000,
                     goal: typeof s.goal === 'number' ? s.goal : 100000,
-                    recentDonors: s.recentDonors || DEFAULT_STORIES[i % DEFAULT_STORIES.length]?.recentDonors || []
+                    recentDonors: (s.recentDonors && s.recentDonors.length > 0) ? s.recentDonors : (DEFAULT_STORIES[i % DEFAULT_STORIES.length]?.recentDonors || [])
                 }));
             } catch (e) {
                 console.error("Failed to parse stories from local storage", e);
@@ -195,6 +195,9 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
         setShowReactions(false);
         setIsExpanded(false);
         setShowStickyFooter(false);
+
+        // Scroll to top when a story is selected
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     // Reset Scroll on story change (Side effect only)

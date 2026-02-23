@@ -25,7 +25,12 @@ export const DEFAULT_STORIES: Story[] = [
         donorCount: 42,
         isLive: false,
         paybillNumber: '247247',
-        accountNumber: 'Mama Wanjiku'
+        accountNumber: 'Mama Wanjiku',
+        recentDonors: [
+            { name: 'John K.', amount: 1000 },
+            { name: 'Sarah M.', amount: 2500 },
+            { name: 'David O.', amount: 500 }
+        ]
     },
     {
         id: '2',
@@ -46,7 +51,12 @@ export const DEFAULT_STORIES: Story[] = [
         donorCount: 315,
         isLive: false,
         paybillNumber: '247247',
-        accountNumber: 'Turkana Water'
+        accountNumber: 'Turkana Water',
+        recentDonors: [
+            { name: 'Alice W.', amount: 5000 },
+            { name: 'Peter N.', amount: 1200 },
+            { name: 'Mary K.', amount: 3000 }
+        ]
     },
     {
         id: '3',
@@ -65,7 +75,12 @@ export const DEFAULT_STORIES: Story[] = [
         donorCount: 56,
         isLive: false,
         paybillNumber: '247247',
-        accountNumber: 'Kevin Omondi'
+        accountNumber: 'Kevin Omondi',
+        recentDonors: [
+            { name: 'Brian O.', amount: 2000 },
+            { name: 'Grace M.', amount: 1500 },
+            { name: 'Paul K.', amount: 1000 }
+        ]
     },
     {
         id: '4',
@@ -84,7 +99,12 @@ export const DEFAULT_STORIES: Story[] = [
         donorCount: 89,
         isLive: false,
         paybillNumber: '247247',
-        accountNumber: 'Halima Juma'
+        accountNumber: 'Halima Juma',
+        recentDonors: [
+            { name: 'Faith N.', amount: 10000 },
+            { name: 'George W.', amount: 5000 },
+            { name: 'Lucy A.', amount: 2500 }
+        ]
     },
     {
         id: '5',
@@ -103,6 +123,11 @@ export const DEFAULT_STORIES: Story[] = [
         donorCount: 25,
         isLive: false,
         paybillNumber: '247247',
-        accountNumber: 'James Kamau'
+        accountNumber: 'James Kamau',
+        recentDonors: [
+            { name: 'Samuel K.', amount: 1500 },
+            { name: 'Jane W.', amount: 2000 },
+            { name: 'Anonymous', amount: 500 }
+        ]
     }
 ];
