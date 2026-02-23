@@ -175,8 +175,10 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
         onStoryStateChange?.(!!selectedStoryId);
     }, [selectedStoryId, onStoryStateChange]);
 
+    const [scrollToComments, setScrollToComments] = useState(false);
+
     // Consolidate story selection logic to update state AND push history
-    const handleStorySelection = (id: string | null) => {
+    const handleStorySelection = (id: string | null, toComments: boolean = false) => {
         const url = new URL(window.location.href);
         if (id) {
             url.searchParams.set('story', id);
@@ -198,6 +200,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
         setShowReactions(false);
         setIsExpanded(false);
         setShowStickyFooter(false);
+        setScrollToComments(toComments);
     };
 
     // Reset Scroll on story change (Side effect only)
@@ -206,17 +209,26 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
             scrollContainerRef.current.scrollLeft = 0;
         }
 
-        // Scroll to top when a story is opened
+        // Scroll to top or comments when a story is opened
         if (selectedStoryId) {
-            // Scroll to the absolute top of the page
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (scrollToComments) {
+                setTimeout(() => {
+                    const commentsSection = document.getElementById('comments-section');
+                    if (commentsSection) {
+                        commentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
+            } else {
+                // Scroll to the absolute top of the page
+                window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // Fallback for some mobile browsers
-            setTimeout(() => {
-                window.scrollTo(0, 0);
-            }, 100);
+                // Fallback for some mobile browsers
+                setTimeout(() => {
+                    window.scrollTo(0, 0);
+                }, 100);
+            }
         }
-    }, [selectedStoryId]);
+    }, [selectedStoryId, scrollToComments]);
 
     // Close reactions when clicking outside
     useEffect(() => {
@@ -828,7 +840,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                             {/*</div>*/}
 
                             {/* Comments Section */}
-                            <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-8">
+                            <div id="comments-section" className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-8">
                                 <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                                     <MessageCircle className="w-5 h-5"/>
                                     Comments ({activeStory.comments.length})
@@ -1155,10 +1167,16 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                                             <Heart className="w-6 h-6 group-hover/like:fill-current transition-colors"/>
                                             <span className="font-medium">{story.likes} Likes</span>
                                         </button>
-                                        <div className="flex items-center gap-2 text-gray-600">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleStorySelection(story.id, true);
+                                            }}
+                                            className="flex items-center gap-2 text-gray-600 hover:text-kenya-green transition-colors"
+                                        >
                                             <MessageCircle className="w-6 h-6"/>
                                             <span className="font-medium">{story.comments.length} Comments</span>
-                                        </div>
+                                        </button>
                                     </div>
 
                                     <p className="text-gray-800 mb-6 leading-relaxed flex-grow line-clamp-3">
