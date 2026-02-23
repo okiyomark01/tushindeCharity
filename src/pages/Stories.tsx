@@ -406,10 +406,14 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
         setStoryToShare(null);
     };
 
-    const handleSocialShare = (platform: 'facebook' | 'x' | 'instagram' | 'tiktok' | 'copy') => {
+    const handleSocialShare = async (platform: 'facebook' | 'x' | 'instagram' | 'tiktok' | 'copy') => {
         if (!storyToShare) return;
 
-        const url = encodeURIComponent(window.location.href);
+        // Construct the URL to point directly to the story
+        const baseUrl = window.location.origin + window.location.pathname;
+        const storyUrl = `${baseUrl}?page=stories&story=${storyToShare.id}`;
+
+        const url = encodeURIComponent(storyUrl);
         const text = encodeURIComponent(`Read this inspiring story from Tushinde Charity: ${storyToShare.title}`);
 
         if (platform === 'facebook') {
@@ -418,10 +422,34 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
             window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank', 'width=600,height=400');
         } else {
             // Instagram, TikTok, and Copy Link all rely on clipboard for web
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-            });
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(storyUrl);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                } else {
+                    // Fallback for older browsers or non-secure contexts
+                    const textArea = document.createElement("textarea");
+                    textArea.value = storyUrl;
+                    // Avoid scrolling to bottom
+                    textArea.style.top = "0";
+                    textArea.style.left = "0";
+                    textArea.style.position = "fixed";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                    } catch (err) {
+                        console.error('Fallback: Oops, unable to copy', err);
+                    }
+                    document.body.removeChild(textArea);
+                }
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+            }
         }
     };
 
@@ -490,7 +518,9 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-xs text-gray-500 mb-0.5">Page Link</p>
-                                <p className="text-sm font-medium text-gray-900 truncate">tushindecharity.org/stories</p>
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                    {storyToShare ? `${window.location.origin}${window.location.pathname}?page=stories&story=${storyToShare.id}` : 'tushindecharity.org/stories'}
+                                </p>
                             </div>
                             <button
                                 onClick={() => handleSocialShare('copy')}
