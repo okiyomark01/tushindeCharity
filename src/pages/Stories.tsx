@@ -14,17 +14,16 @@ import {
     ChevronRight,
     HeartHandshake,
     ArrowRight,
-    Facebook,
-    Instagram,
     Link as LinkIcon,
     Check,
-    Copy
+    Copy, Facebook, Instagram
 } from 'lucide-react';
-import {type Story, type Comment, Page} from '../types';
+import {type Story, type Comment, Page} from '../types/types.ts';
 import "../assets/updates.css"
 import {DonationsList} from "./Donations";
 import StoriesSlider from "./StoriesSlider";
-import { DEFAULT_STORIES } from '../services/data';
+// import { DEFAULT_STORIES } from '../services/data';
+import {DEFAULT_STORIES, REACTION_EMOJIS} from "../hook/useStories";
 // Custom Icons for brands
 const XLogo = ({className}: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -40,7 +39,11 @@ const TikTokLogo = ({className}: { className?: string }) => (
     </svg>
 );
 
-const REACTION_EMOJIS = ['❤️‍🩹', '🙏', '💐', '💚', '✨', '👏'];
+const WhatsAppLogo = ({className}: { className?: string }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+    </svg>
+);
 
 
 
@@ -109,8 +112,9 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                     // If raised is 0 or missing, give it a random meaningful start value so live updates look good
                     raised: (typeof s.raised === 'number' && s.raised > 0) ? s.raised : Math.floor(Math.random() * 20000) + 5000,
                     goal: typeof s.goal === 'number' ? s.goal : 100000,
-                    recentDonors: (s.recentDonors && s.recentDonors.length > 0) ? s.recentDonors : (DEFAULT_STORIES[i % DEFAULT_STORIES.length]?.recentDonors || [])
-                }));
+                    recentDonors: (s.recentDonors && s.recentDonors.length > 0) ? s.recentDonors : (DEFAULT_STORIES[i % DEFAULT_STORIES.length]?.recentDonors || []),
+                    paybillNumber: typeof s.paybillNumber === 'string' ? s.paybillNumber :
+                        (DEFAULT_STORIES[i % DEFAULT_STORIES.length]?.paybillNumber || '247247'),                }));
             } catch (e) {
                 console.error("Failed to parse stories from local storage", e);
                 return DEFAULT_STORIES;
@@ -386,13 +390,13 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
         setCommentInput({...commentInput, [storyId]: value});
     };
 
-    const handleDonate = (e: React.MouseEvent, storyId: string) => {
-        e.stopPropagation();
-        const url = new URL(window.location.href);
-        url.searchParams.set('story', storyId);
-        window.history.pushState({}, '', '?' + url.searchParams.toString());
-        setPage?.(Page.DONATE);
-    };
+    // const handleDonate = (e: React.MouseEvent, storyId: string) => {
+    //     e.stopPropagation();
+    //     const url = new URL(window.location.href);
+    //     url.searchParams.set('story', storyId);
+    //     window.history.pushState({}, '', '?' + url.searchParams.toString());
+    //     setPage?.(Page.DONATE);
+    // };
 
     const handleShareClick = (e: React.MouseEvent, story: Story) => {
         e.stopPropagation();
@@ -406,7 +410,29 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
         setStoryToShare(null);
     };
 
-    const handleSocialShare = async (platform: 'facebook' | 'x' | 'instagram' | 'tiktok' | 'copy') => {
+    const handleDonate = (e: React.MouseEvent, storyId?: string) => {
+        e.stopPropagation();
+        // Update URL with story ID before navigating
+        const url = new URL(window.location.href);
+        if (storyId) {
+            url.searchParams.set('story', storyId);
+        } else {
+            url.searchParams.delete('story');
+        }
+        url.searchParams.set('page', Page.DONATE);
+
+        try {
+            window.history.pushState({}, '', '?' + url.searchParams.toString());
+        } catch (e) {
+            console.warn("Navigation failed:", e);
+        }
+
+        window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
+        setPage?.(Page.DONATE);
+    };
+
+
+    const handleSocialShare = async (platform: 'facebook' | 'x' | 'instagram' | 'tiktok' | 'whatsapp' | 'copy') => {
         if (!storyToShare) return;
 
         // Construct the URL to point directly to the story
@@ -420,6 +446,8 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
             window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
         } else if (platform === 'x') {
             window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank', 'width=600,height=400');
+        } else if (platform === 'whatsapp') {
+            window.open(`https://api.whatsapp.com/send?text=${text}%20${url}`, '_blank');
         } else {
             // Instagram, TikTok, and Copy Link all rely on clipboard for web
             try {
@@ -473,41 +501,50 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-4 mb-6">
-                        <button onClick={() => handleSocialShare('facebook')}
-                                className="flex flex-col items-center gap-2 group">
+                    <div className="grid grid-cols-5 gap-2 sm:gap-4 mb-6">
+                        <button onClick={() => handleSocialShare('whatsapp')}
+                                className="flex flex-col items-center gap-1 sm:gap-2 group">
                             <div
-                                className="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                <Facebook className="w-7 h-7"/>
+                                className="w-12 h-12 sm:w-14 sm:h-14 bg-green-50 text-green-500 rounded-full flex items-center justify-center group-hover:bg-green-500 group-hover:text-white transition-all">
+                                <WhatsAppLogo className="w-6 h-6 sm:w-7 sm:h-7"/>
                             </div>
-                            <span className="text-xs font-medium text-gray-600">Facebook</span>
+                            <span className="text-[10px] sm:text-xs font-medium text-gray-600">WhatsApp</span>
+                        </button>
+
+                        <button onClick={() => handleSocialShare('facebook')}
+                                className="flex flex-col items-center gap-1 sm:gap-2 group">
+                            <div
+                                className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                <Facebook className="w-6 h-6 sm:w-7 sm:h-7"/>
+                            </div>
+                            <span className="text-[10px] sm:text-xs font-medium text-gray-600">Facebook</span>
                         </button>
 
                         <button onClick={() => handleSocialShare('x')}
-                                className="flex flex-col items-center gap-2 group">
+                                className="flex flex-col items-center gap-1 sm:gap-2 group">
                             <div
-                                className="w-14 h-14 bg-gray-100 text-gray-900 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
-                                <XLogo className="w-6 h-6"/>
+                                className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 text-gray-900 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
+                                <XLogo className="w-5 h-5 sm:w-6 sm:h-6"/>
                             </div>
-                            <span className="text-xs font-medium text-gray-600">X</span>
+                            <span className="text-[10px] sm:text-xs font-medium text-gray-600">X</span>
                         </button>
 
                         <button onClick={() => handleSocialShare('instagram')}
-                                className="flex flex-col items-center gap-2 group">
+                                className="flex flex-col items-center gap-1 sm:gap-2 group">
                             <div
-                                className="w-14 h-14 bg-pink-50 text-pink-600 rounded-full flex items-center justify-center group-hover:bg-gradient-to-tr group-hover:from-yellow-400 group-hover:via-red-500 group-hover:to-purple-600 group-hover:text-white transition-all">
-                                <Instagram className="w-7 h-7"/>
+                                className="w-12 h-12 sm:w-14 sm:h-14 bg-pink-50 text-pink-600 rounded-full flex items-center justify-center group-hover:bg-gradient-to-tr group-hover:from-yellow-400 group-hover:via-red-500 group-hover:to-purple-600 group-hover:text-white transition-all">
+                                <Instagram className="w-6 h-6 sm:w-7 sm:h-7"/>
                             </div>
-                            <span className="text-xs font-medium text-gray-600">Instagram</span>
+                            <span className="text-[10px] sm:text-xs font-medium text-gray-600">Instagram</span>
                         </button>
 
                         <button onClick={() => handleSocialShare('tiktok')}
-                                className="flex flex-col items-center gap-2 group">
+                                className="flex flex-col items-center gap-1 sm:gap-2 group">
                             <div
-                                className="w-14 h-14 bg-gray-100 text-gray-900 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
-                                <TikTokLogo className="w-6 h-6"/>
+                                className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 text-gray-900 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
+                                <TikTokLogo className="w-5 h-5 sm:w-6 sm:h-6"/>
                             </div>
-                            <span className="text-xs font-medium text-gray-600">TikTok</span>
+                            <span className="text-[10px] sm:text-xs font-medium text-gray-600">TikTok</span>
                         </button>
                     </div>
 
@@ -683,7 +720,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                         <div ref={topButtonsRef}
                              className="flex sm:hidden items-center gap-3 px-4 py-4 border-b border-gray-100 bg-white">
                             <button
-                                onClick={() => setPage?.(Page.DONATE)}
+                                onClick={(e) => handleDonate(e, activeStory.id)}  // Make sure this is handleDonate
                                 className="flex-1 bg-[#d9f99d] text-[#14532d] py-3.5 rounded-full font-bold text-base shadow-sm hover:bg-[#bef264] transition-colors flex items-center justify-center gap-2"
                             >
                                 Donate
@@ -824,7 +861,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                             {/* Mobile Donate & Share Buttons (Requested Update) */}
                             <div className="flex sm:hidden gap-4 mb-10 px-2">
                                 <button
-                                    onClick={() => setPage?.(Page.DONATE)}
+                                    onClick={(e) => handleDonate(e, activeStory.id)}  // Changed from setPage to handleDonate
                                     className="flex-1 bg-white border border-gray-300 text-gray-900 py-3 rounded-full font-bold text-base hover:bg-gray-50 transition-colors"
                                 >
                                     Donate
@@ -836,6 +873,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                                     Share
                                 </button>
                             </div>
+
                             {/*updates*/}
                             <DonationsList/>
 
@@ -970,7 +1008,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                         {/* Buttons Row */}
                         <div className="flex gap-3">
                             <button
-                                onClick={() => setPage?.(Page.DONATE)}
+                                onClick={(e) => handleDonate(e, activeStory.id)}  // Changed from setPage to handleDonate
                                 className="flex-1 bg-[#bef264] text-[#1a2e05] font-bold py-3 rounded-full text-base hover:bg-[#a3e635] transition-colors"
                             >
                                 Donate
@@ -1056,7 +1094,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                     {showDonateButton ? (
                         <div className="mt-3 sm:mt-6 flex justify-center">
                             <button
-                                onClick={() => setPage?.(Page.DONATE)}
+                                onClick={(e) => handleDonate(e)}
                                 className="bg-kenya-green hover:bg-green-800 text-white px-6 py-2 sm:px-10 sm:py-3.5 rounded-full font-bold text-sm sm:text-lg shadow-lg transition-transform hover:-translate-y-1 hover:shadow-xl"
                             >
                                 Start Donating

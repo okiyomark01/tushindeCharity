@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page } from '../types';
+import { Page } from '../types/types.ts';
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 
 interface FooterProps {

@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import type { ContactContent } from '../types';
+import type { ContactContent } from '../types/types.ts';
+import {DEFAULT_CONTACT} from "../hook/useContact.ts";
 
-const DEFAULT_CONTACT: ContactContent = {
-    heroTitle: "Get in Touch",
-    heroSubtitle: "Have questions about our programs or want to partner with us?",
-    address: "Tushinde House, 4th Floor\nWestlands Road, Nairobi, Kenya",
-    phone1: "+254 700 123 456",
-    phone2: "+254 722 987 654",
-    email1: "info@tushindecharity.org",
-    email2: "donations@tushindecharity.org"
-};
+
 
 export const Contact: React.FC = () => {
     const [content, setContent] = useState<ContactContent>(DEFAULT_CONTACT);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Page } from '../types';
+import { Page } from '../types/types.ts';
 import { Menu, X, HeartHandshake, ChevronDown, Lock, LogOut, LayoutDashboard } from 'lucide-react';
 
 interface NavbarProps {

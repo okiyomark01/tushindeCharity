@@ -9,7 +9,7 @@ import { Stories } from './pages/Stories';
 import { Contact } from './pages/Contact';
 import { About } from './pages/About';
 import { Admin } from './pages/Admin';
-import { Page } from './types';
+import { Page } from './types/types.ts';
 
 // Helper to determine page from URL
 const getPageFromUrl = (): Page => {

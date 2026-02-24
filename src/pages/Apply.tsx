@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { ApplicationForm } from '../types';
+import type { ApplicationForm } from '../types/types.ts';
 import { Upload, CheckCircle, Loader2 } from 'lucide-react';
 
 export const Apply: React.FC = () => {

@@ -1,20 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Smartphone, Check, ShieldCheck } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { DEFAULT_STORIES } from '../services/data';
+import { DEFAULT_STORIES } from '../hook/useStories.ts';
 
 export const Donate: React.FC = () => {
-    const [paybill, setPaybill] = useState('247247');
-    const [account, setAccount] = useState('Tushinde Charity');
+    const [paybill, setPaybill] = useState(''); // Default fallback
+    const [account, setAccount] = useState('Tushinde Charity'); // Default fallback
     const [storyName, setStoryName] = useState<string | null>(null);
 
+    // Read the current search string so this effect re-runs whenever the URL changes
+    const locationSearch = window.location.search;
+
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(locationSearch);
         const storyId = params.get('story');
+        console.log("Donate component - storyId from URL:", storyId);
+
         if (storyId) {
             // First check localStorage for edited stories
             const savedStories = localStorage.getItem('stories');
             let stories = DEFAULT_STORIES;
+
             if (savedStories) {
                 try {
                     stories = JSON.parse(savedStories);
@@ -25,12 +31,32 @@ export const Donate: React.FC = () => {
 
             const story = stories.find(s => s.id === storyId);
             if (story) {
-                setPaybill(story.paybillNumber || '247247');
-                setAccount(story.accountNumber || story.name);
+                // Use story-specific paybill if available, otherwise keep default
+                if (story.paybillNumber) {
+                    setPaybill(story.paybillNumber);
+                } else {
+                    setPaybill('247247');
+                }
+
+                // Use story-specific account number if available, otherwise use story name
+                if (story.accountNumber) {
+                    setAccount(story.accountNumber);
+                } else if (story.name) {
+                    setAccount(story.name);
+                } else {
+                    setAccount('Tushinde Charity');
+                }
+
                 setStoryName(story.name);
+                console.log("Donate component - set paybill to:", story.paybillNumber || '247247');
             }
+        } else {
+            // No story in URL — reset to defaults
+            setPaybill('247247');
+            setAccount('Tushinde Charity');
+            setStoryName(null);
         }
-    }, []);
+    }, [locationSearch]); // Re-run whenever the URL search string changes
 
     const chartData = [
         { name: 'Direct Aid (Programs)', value: 85, color: '#006600' },

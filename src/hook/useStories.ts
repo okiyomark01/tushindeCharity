@@ -1,5 +1,6 @@
-import type {Story} from "../types.ts";
+import type {Story} from "../types/types.ts";
 
+export const REACTION_EMOJIS = ['❤️‍🩹', '🙏', '💐', '💚', '✨', '👏'];
 export const DEFAULT_STORIES: Story[] = [
     {
         id: '1',
@@ -23,13 +24,14 @@ export const DEFAULT_STORIES: Story[] = [
         goal: 50000,
         category: 'Business',
         donorCount: 42,
+        isLive: false,
+        paybillNumber: '234234',
+        accountNumber: 'Mama Wanjiku',
         recentDonors: [
-            {name: "Sarah M.", amount: 500},
-            {name: "John K.", amount: 1000},
-            {name: "Anonymous", amount: 200},
-            {name: "Peter W.", amount: 1500},
-        ],
-        isLive: true
+            { name: 'John K.', amount: 1000 },
+            { name: 'Sarah M.', amount: 2500 },
+            { name: 'David O.', amount: 500 }
+        ]
     },
     {
         id: '2',
@@ -48,16 +50,15 @@ export const DEFAULT_STORIES: Story[] = [
         goal: 600000,
         category: 'Community',
         donorCount: 315,
+        isLive: false,
+        paybillNumber: '224224',
+        accountNumber: 'Turkana Water',
         recentDonors: [
-            {name: "Global Partners", amount: 50000},
-            {name: "Anonymous", amount: 5000},
-            {name: "Mary J.", amount: 2500},
-            {name: "David L.", amount: 1000},
-        ],
-        isLive: false
-
+            { name: 'Alice W.', amount: 5000 },
+            { name: 'Peter N.', amount: 1200 },
+            { name: 'Mary K.', amount: 3000 }
+        ]
     },
-
     {
         id: '3',
         name: "Kevin Omondi",
@@ -73,13 +74,14 @@ export const DEFAULT_STORIES: Story[] = [
         goal: 80000,
         category: 'Medical',
         donorCount: 56,
+        isLive: false,
+        paybillNumber: '214214',
+        accountNumber: 'Kevin Omondi',
         recentDonors: [
-            {name: "Team Cheza", amount: 10000},
-            {name: "Anonymous", amount: 500},
-            {name: "Grace O.", amount: 1000},
-        ],
-        isLive: false
-
+            { name: 'Brian O.', amount: 2000 },
+            { name: 'Grace M.', amount: 1500 },
+            { name: 'Paul K.', amount: 1000 }
+        ]
     },
     {
         id: '4',
@@ -96,14 +98,14 @@ export const DEFAULT_STORIES: Story[] = [
         goal: 80000,
         category: 'Education',
         donorCount: 89,
+        isLive: false,
+        paybillNumber: '244244',
+        accountNumber: 'Halima Juma',
         recentDonors: [
-            {name: "Education First", amount: 5000},
-            {name: "Ali B.", amount: 2000},
-            {name: "Anonymous", amount: 500},
-            {name: "Zara Y.", amount: 1500},
-        ],
-        isLive: true
-
+            { name: 'Faith N.', amount: 10000 },
+            { name: 'George W.', amount: 5000 },
+            { name: 'Lucy A.', amount: 2500 }
+        ]
     },
     {
         id: '5',
@@ -120,58 +122,13 @@ export const DEFAULT_STORIES: Story[] = [
         goal: 100000,
         category: 'Emergency',
         donorCount: 25,
+        isLive: false,
+        paybillNumber: '254254',
+        accountNumber: 'James Kamau',
         recentDonors: [
-            {name: "Neighborhood Watch", amount: 5000},
-            {name: "Anonymous", amount: 200},
-            {name: "Pastor John", amount: 1000},
-        ],
-        isLive: true
-    },
-    {
-        id: '6',
-        name: "Sarah Akoth",
-        location: "Siaya",
-        mediaUrl: "https://picsum.photos/id/1012/800/600",
-        mediaType: 'image',
-        title: "Drought Resilience",
-        content: "With the new irrigation kit provided by Tushinde, Sarah's farm is now yielding crops even during the dry season. She grows kale and spinach, supplying the local school and ensuring her children have nutritious meals.",
-        likes: 67,
-        comments: [],
-        date: new Date().toISOString(),
-        raised: 12000,
-        goal: 40000,
-        category: 'Business',
-        donorCount: 18,
-        recentDonors: [
-            {name: "AgriSupport", amount: 2500},
-            {name: "Anonymous", amount: 100},
-            {name: "Tom M.", amount: 500},
-        ],
-        isLive: false
-
-    },
-    {
-        id: '7',
-        name: "John & Mary",
-        location: "Nakuru",
-        mediaUrl: "https://picsum.photos/id/1020/800/600",
-        mediaType: 'image',
-        title: "A Home Rebuilt",
-        content: "After a landslide destroyed their home, John and Mary received emergency shelter assistance. They are now rebuilding on safer ground with materials provided by our donors.",
-        likes: 45,
-        comments: [],
-        date: new Date().toISOString(),
-        raised: 85000,
-        goal: 150000,
-        category: 'Emergency',
-        donorCount: 112,
-        recentDonors: [
-            {name: "Relief Corp", amount: 10000},
-            {name: "Anonymous", amount: 500},
-            {name: "Esther K.", amount: 2000},
-            {name: "Mike T.", amount: 1000},
-        ],
-        isLive: false
-
+            { name: 'Samuel K.', amount: 1500 },
+            { name: 'Jane W.', amount: 2000 },
+            { name: 'Anonymous', amount: 500 }
+        ]
     }
 ];

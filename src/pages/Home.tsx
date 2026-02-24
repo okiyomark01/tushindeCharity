@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page } from '../types';
+import { Page } from '../types/types.ts';
 import { ArrowRight, Heart, GraduationCap, Briefcase } from 'lucide-react';
 import { Stories } from './Stories';
 
