@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { Smartphone, Check, ShieldCheck } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { DEFAULT_STORIES } from '../hook/useStories.ts';
+import { DEFAULT_STORIES } from '../hook/useStories';
+import type { Story } from '../types/types';
 
 export const Donate: React.FC = () => {
-    const [paybill, setPaybill] = useState(''); // Default fallback
-    const [account, setAccount] = useState('Tushinde Charity'); // Default fallback
-    const [storyName, setStoryName] = useState<string | null>(null);
-
     // Read the current search string so this effect re-runs whenever the URL changes
     const locationSearch = window.location.search;
 
-    useEffect(() => {
+    const { paybill, account, storyName } = useMemo(() => {
         const params = new URLSearchParams(locationSearch);
         const storyId = params.get('story');
-        console.log("Donate component - storyId from URL:", storyId);
+
+        let currentPaybill = '247247';
+        let currentAccount = 'Tushinde Charity';
+        let currentStoryName: string | null = null;
 
         if (storyId) {
             // First check localStorage for edited stories
@@ -23,7 +23,13 @@ export const Donate: React.FC = () => {
 
             if (savedStories) {
                 try {
-                    stories = JSON.parse(savedStories);
+                    const parsed = JSON.parse(savedStories);
+                    if (Array.isArray(parsed)) {
+                        stories = parsed.map((s: Partial<Story> & Record<string, unknown>) => ({
+                            ...s,
+                            businessNumber: (s.businessNumber as string) || (s.paybillNumber as string) || DEFAULT_STORIES.find(ds => ds.id === s.id)?.businessNumber || '247247'
+                        })) as Story[];
+                    }
                 } catch (e) {
                     console.error("Failed to parse stories from local storage", e);
                 }
@@ -32,31 +38,23 @@ export const Donate: React.FC = () => {
             const story = stories.find(s => s.id === storyId);
             if (story) {
                 // Use story-specific paybill if available, otherwise keep default
-                if (story.paybillNumber) {
-                    setPaybill(story.paybillNumber);
-                } else {
-                    setPaybill('247247');
+                if (story.businessNumber) {
+                    currentPaybill = story.businessNumber;
                 }
 
                 // Use story-specific account number if available, otherwise use story name
                 if (story.accountNumber) {
-                    setAccount(story.accountNumber);
+                    currentAccount = story.accountNumber;
                 } else if (story.name) {
-                    setAccount(story.name);
-                } else {
-                    setAccount('Tushinde Charity');
+                    currentAccount = story.name;
                 }
 
-                setStoryName(story.name);
-                console.log("Donate component - set paybill to:", story.paybillNumber || '247247');
+                currentStoryName = story.name;
             }
-        } else {
-            // No story in URL — reset to defaults
-            setPaybill('247247');
-            setAccount('Tushinde Charity');
-            setStoryName(null);
         }
-    }, [locationSearch]); // Re-run whenever the URL search string changes
+
+        return { paybill: currentPaybill, account: currentAccount, storyName: currentStoryName };
+    }, [locationSearch]);
 
     const chartData = [
         { name: 'Direct Aid (Programs)', value: 85, color: '#006600' },

@@ -1,23 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import type { ContactContent } from '../types/types.ts';
-import {DEFAULT_CONTACT} from "../hook/useContact.ts";
+import type { ContactContent } from '../types/types';
+import {DEFAULT_CONTACT} from "../hook/useContact";
 
 
 
 export const Contact: React.FC = () => {
-    const [content, setContent] = useState<ContactContent>(DEFAULT_CONTACT);
-
-    useEffect(() => {
-        const stored = localStorage.getItem('contactContent');
-        if (stored) {
-            try {
-                setContent(JSON.parse(stored));
-            } catch (e) {
-                console.error("Failed to parse contact content");
+    const [content] = useState<ContactContent>(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('contactContent');
+            if (stored) {
+                try {
+                    return JSON.parse(stored);
+                } catch (e) {
+                    console.error("Failed to parse contact content", e);
+                }
             }
         }
-    }, []);
+        return DEFAULT_CONTACT;
+    });
 
     return (
         <div className="bg-white py-16 animate-fade-in">
@@ -69,12 +70,12 @@ export const Contact: React.FC = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                                 <input type="text" className="w-full border-gray-300 rounded-lg p-3 border focus:ring-kenya-green focus:border-kenya-green bg-white" />
                             </div>
-                             <div>
+                            <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                                 <input type="email" className="w-full border-gray-300 rounded-lg p-3 border focus:ring-kenya-green focus:border-kenya-green bg-white" />
                             </div>
                         </div>
-                         <div className="mb-4">
+                        <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
                             <input type="text" className="w-full border-gray-300 rounded-lg p-3 border focus:ring-kenya-green focus:border-kenya-green bg-white" />
                         </div>

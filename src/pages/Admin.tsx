@@ -6,16 +6,18 @@ import {
     Pencil, Settings,
     Menu, X, Heart
 } from 'lucide-react';
-import type {Story, MediaType, ApplicationForm, Donation, AboutContent, ContactContent, Program, Tab} from '../types/types.ts';
-import {DEFAULT_STORIES} from "../hook/useStories.ts";
-import {MOCK_APPLICATIONS, MOCK_DONATIONS} from "../hook/useAdminData.ts";
-import {DEFAULT_PROGRAMS} from "../hook/usePrograms.ts";
+import type {Story, MediaType, ApplicationForm, Donation, AboutContent, ContactContent, Program} from '../types/types';
+import {DEFAULT_STORIES} from "../hook/useStories";
+import {MOCK_APPLICATIONS, MOCK_DONATIONS} from "../hook/useAdminData";
+import {DEFAULT_PROGRAMS} from "../hook/usePrograms";
 
 
 interface AdminProps {
     isAuthenticated: boolean;
     setIsAuthenticated: (value: boolean) => void;
 }
+
+type Tab = 'dashboard' | 'applications' | 'stories' | 'programs' | 'donations' | 'settings';
 
 const StatCard = ({ title, value, icon: Icon, color }: { title: string; value: string | number; icon: React.ElementType; color: string }) => (
     <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
@@ -76,7 +78,12 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
             const stored = localStorage.getItem('stories');
             if (stored) {
                 const parsed = JSON.parse(stored);
-                if (Array.isArray(parsed)) return parsed;
+                if (Array.isArray(parsed)) {
+                    return parsed.map((s: Partial<Story> & Record<string, unknown>) => ({
+                        ...s,
+                        businessNumber: (s.businessNumber as string) || (s.paybillNumber as string) || DEFAULT_STORIES.find(ds => ds.id === s.id)?.businessNumber || '247247'
+                    })) as Story[];
+                }
             }
         } catch (e) {
             console.error("Error parsing stories:", e);
@@ -211,7 +218,7 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
     const handleStoryGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files && files.length > 0) {
-            const fileReaders: Promise<string>[] = Array.from(files).map(file => {
+            const fileReaders: Promise<string>[] = Array.from(files).map((file: File) => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onloadend = () => resolve(reader.result as string);
@@ -280,6 +287,8 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                         mediaType: newStory.mediaType as MediaType || s.mediaType,
                         location: newStory.location || s.location,
                         gallery: newStory.gallery || s.gallery || [],
+                        businessNumber: newStory.businessNumber || s.businessNumber,
+                        accountNumber: newStory.accountNumber || s.accountNumber,
                     } as Story;
                 }
                 return s;
@@ -290,7 +299,8 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
         } else {
             // Create new story
             const story: Story = {
-                paybillNumber: "",
+                businessNumber: newStory.businessNumber || "",
+                accountNumber: newStory.accountNumber || "",
                 isLive: false,
                 id: Date.now().toString(),
                 name: newStory.name || 'Anonymous',
@@ -788,6 +798,8 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                                         <option value="image">Image Story</option>
                                         <option value="video">Video Story</option>
                                     </select>
+                                    <input type="text" placeholder="Business Number" className="border p-2 rounded" value={newStory.businessNumber || ''} onChange={e => setNewStory({...newStory, businessNumber: e.target.value})} />
+                                    <input type="text" placeholder="Account Number" className="border p-2 rounded" value={newStory.accountNumber || ''} onChange={e => setNewStory({...newStory, accountNumber: e.target.value})} />
                                 </div>
                                 <textarea placeholder="Story Content..." rows={4} className="w-full border p-2 rounded" value={newStory.content || ''} onChange={e => setNewStory({...newStory, content: e.target.value})} />
 

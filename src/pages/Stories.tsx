@@ -18,7 +18,7 @@ import {
     Check,
     Copy, Facebook, Instagram
 } from 'lucide-react';
-import {type Story, type Comment, Page} from '../types/types.ts';
+import {type Story, type Comment, Page} from '../types/types';
 import "../assets/updates.css"
 import {DonationsList} from "./Donations";
 import StoriesSlider from "./StoriesSlider";
@@ -113,8 +113,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                     raised: (typeof s.raised === 'number' && s.raised > 0) ? s.raised : Math.floor(Math.random() * 20000) + 5000,
                     goal: typeof s.goal === 'number' ? s.goal : 100000,
                     recentDonors: (s.recentDonors && s.recentDonors.length > 0) ? s.recentDonors : (DEFAULT_STORIES[i % DEFAULT_STORIES.length]?.recentDonors || []),
-                    paybillNumber: typeof s.paybillNumber === 'string' ? s.paybillNumber :
-                        (DEFAULT_STORIES[i % DEFAULT_STORIES.length]?.paybillNumber || '247247'),                }));
+                    businessNumber: s.businessNumber || s.paybillNumber || DEFAULT_STORIES.find(ds => ds.id === s.id)?.businessNumber || '247247',                }));
             } catch (e) {
                 console.error("Failed to parse stories from local storage", e);
                 return DEFAULT_STORIES;

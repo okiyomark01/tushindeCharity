@@ -1,7 +1,5 @@
 import type { ElementType } from 'react';
 
-export type Tab = 'dashboard' | 'applications' | 'stories' | 'programs' | 'donations' | 'settings';
-
 export interface Program {
   id: string;
   title: string;
@@ -39,7 +37,7 @@ export interface Story {
   category: 'Medical' | 'Education' | 'Emergency' | 'Business' | 'Community';
   donorCount?: number;
   recentDonors?: { name: string; amount: number }[];
-  paybillNumber: string;
+  businessNumber?: string;
   accountNumber?: string;
   isLive?: boolean;
 }
@@ -109,4 +107,3 @@ export const Page = {
 } as const;
 
 export type Page = typeof Page[keyof typeof Page];
-
