@@ -31,13 +31,18 @@ export interface Story {
   comments: Comment[];
   date: string;
   gallery?: string[];
+
   // Fundraising Fields
   raised: number;
   goal: number;
   category: 'Medical' | 'Education' | 'Emergency' | 'Business' | 'Community';
   donorCount?: number;
   recentDonors?: { name: string; amount: number }[];
+
+  // ✅ Support both
+  paybillNumber?: string;
   businessNumber?: string;
+
   accountNumber?: string;
   isLive?: boolean;
 }
