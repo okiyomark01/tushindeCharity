@@ -91,12 +91,13 @@ const DonorTicker = ({donors}: { donors?: { name: string; amount: number }[] }) 
 interface StoriesProps {
     setPage?: (page: Page) => void;
     limit?: number;
-    title?: string;
+    title?: React.ReactNode;
     showDonateButton?: boolean;
     onStoryStateChange?: (isOpen: boolean) => void;
+    statusFilter?: 'Completed' | 'Active';
 }
 
-export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDonateButton, onStoryStateChange}) => {
+export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDonateButton, onStoryStateChange, statusFilter}) => {
     // Initialize state lazily to avoid setState in useEffect
     const [stories, setStories] = useState<Story[]>(() => {
         const stored = localStorage.getItem('stories');
@@ -148,6 +149,32 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
         if (!localStorage.getItem('stories')) {
             localStorage.setItem('stories', JSON.stringify(DEFAULT_STORIES));
         }
+    }, []);
+
+    // Listen to local-storage-update event to sync stories
+    useEffect(() => {
+        const handleStorageUpdate = () => {
+            try {
+                const stored = localStorage.getItem('stories');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed)) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        setStories(parsed.map((s: any, i: number) => ({
+                            ...s,
+                            raised: (typeof s.raised === 'number' && s.raised > 0) ? s.raised : Math.floor(Math.random() * 20000) + 5000,
+                            goal: typeof s.goal === 'number' ? s.goal : 100000,
+                            recentDonors: (s.recentDonors && s.recentDonors.length > 0) ? s.recentDonors : (DEFAULT_STORIES[i % DEFAULT_STORIES.length]?.recentDonors || []),
+                            businessNumber: s.businessNumber || s.paybillNumber || DEFAULT_STORIES.find(ds => ds.id === s.id)?.businessNumber || '247247',
+                        })));
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing stories on update:", e);
+            }
+        };
+        window.addEventListener('local-storage-update', handleStorageUpdate);
+        return () => window.removeEventListener('local-storage-update', handleStorageUpdate);
     }, []);
 
     // Listen for browser navigation (Back/Forward) specifically for story ID
@@ -272,7 +299,8 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
     }, [selectedStoryId]);
 
     const activeStory = selectedStoryId ? stories.find(s => s.id === selectedStoryId) : null;
-    const displayedStories = limit ? stories.slice(0, limit) : stories;
+    const activeStoriesList = stories.filter(s => statusFilter ? s.status === statusFilter : s.status !== 'Completed');
+    const displayedStories = limit ? activeStoriesList.slice(0, limit) : activeStoriesList;
 
     // Carousel Media Preparation
     const allMedia = activeStory ? [
@@ -1089,18 +1117,46 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
         <div ref={topRef} className="bg-gray-50 py-0 sm:py-12 relative">
             <div className="w-full px-0 sm:px-6 lg:px-8">
                 <div className="text-center mb-2 sm:mb-12 py-3 sm:py-0 px-4 sm:px-0">
-                    <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 mb-2 sm:mb-4 leading-tight">{title || "Community Stories"}</h1>
+                    <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 mb-1 sm:mb-4 leading-tight">{title || "Community Stories"}</h1>
+                    {statusFilter !== 'Completed' && (
+                        <button
+                            onClick={() => setPage?.(Page.LIVES_IMPACTED)}
+                            className="mb-2 sm:mb-4 text-kenya-green font-bold hover:underline flex items-center justify-center gap-1.5 sm:gap-2 mx-auto text-sm sm:text-base"
+                        >
+                            View Lives Impacted <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4"/>
+                        </button>
+                    )}
                     {showDonateButton ? (
-                        <div className="mt-3 sm:mt-6 flex justify-center">
+                        <div className="mt-2 sm:mt-6 flex justify-center">
                             <button
                                 onClick={(e) => handleDonate(e)}
-                                className="bg-kenya-green hover:bg-green-800 text-white px-6 py-2 sm:px-10 sm:py-3.5 rounded-full font-bold text-sm sm:text-lg shadow-lg transition-transform hover:-translate-y-1 hover:shadow-xl"
+                                className="bg-kenya-green hover:bg-green-800 text-white px-5 py-2 sm:px-10 sm:py-3.5 rounded-full font-bold text-sm sm:text-lg shadow-lg transition-transform hover:-translate-y-1 hover:shadow-xl"
                             >
                                 Start Donating
                             </button>
                         </div>
                     ) : (
                         <p className="text-gray-600">Real people, real impact. Join the conversation.</p>
+                    )}
+                    {statusFilter === 'Completed' && (
+                        <div className="mt-6 sm:mt-8 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
+                            <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100">
+                                <div className="text-lg sm:text-3xl font-bold text-kenya-green mb-1 animate-heartbeat">9,674,006+</div>
+                                <div className="text-xs sm:text-sm text-gray-600 font-medium">KES Invested</div>
+                            </div>
+                            <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100">
+                                <div className="text-lg sm:text-3xl font-bold text-kenya-green mb-1 animate-heartbeat" style={{ animationDelay: '0.2s' }}>15,870+</div>
+                                <div className="text-xs sm:text-sm text-gray-600 font-medium">Families Supported</div>
+                            </div>
+                            <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100">
+                                <div className="text-lg sm:text-3xl font-bold text-kenya-green mb-1 animate-heartbeat" style={{ animationDelay: '0.4s' }}>47</div>
+                                <div className="text-xs sm:text-sm text-gray-600 font-medium">Counties Reached</div>
+                            </div>
+                            <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100">
+                                <div className="text-lg sm:text-3xl font-bold text-kenya-green mb-1 animate-heartbeat" style={{ animationDelay: '0.6s' }}>85%</div>
+                                <div className="text-xs sm:text-sm text-gray-600 font-medium">Direct Aid</div>
+                            </div>
+                        </div>
                     )}
                 </div>
 
@@ -1274,7 +1330,7 @@ export const Stories: React.FC<StoriesProps> = ({setPage, limit, title, showDona
                     })}
                 </div>
 
-                {limit && stories.length > limit && (
+                {limit && activeStoriesList.length > limit && (
                     <div className="mt-8 sm:mt-12 text-center px-4 sm:px-0 mb-12 sm:mb-0">
                         <button
                             onClick={() => setPage?.(Page.STORIES)}

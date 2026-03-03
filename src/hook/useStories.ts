@@ -25,7 +25,7 @@ export const DEFAULT_STORIES: Story[] = [
         category: 'Business',
         donorCount: 42,
         isLive: false,
-        paybillNumber: '234234',
+        businessNumber: '234234',
         accountNumber: 'Mama Wanjiku',
         recentDonors: [
             { name: 'John K.', amount: 1000 },
@@ -51,7 +51,7 @@ export const DEFAULT_STORIES: Story[] = [
         category: 'Community',
         donorCount: 315,
         isLive: false,
-        paybillNumber: '224224',
+        businessNumber: '224224',
         accountNumber: 'Turkana Water',
         recentDonors: [
             { name: 'Alice W.', amount: 5000 },
@@ -75,7 +75,7 @@ export const DEFAULT_STORIES: Story[] = [
         category: 'Medical',
         donorCount: 56,
         isLive: false,
-        paybillNumber: '214214',
+        businessNumber: '214214',
         accountNumber: 'Kevin Omondi',
         recentDonors: [
             { name: 'Brian O.', amount: 2000 },
@@ -99,7 +99,7 @@ export const DEFAULT_STORIES: Story[] = [
         category: 'Education',
         donorCount: 89,
         isLive: false,
-        paybillNumber: '244244',
+        businessNumber: '244244',
         accountNumber: 'Halima Juma',
         recentDonors: [
             { name: 'Faith N.', amount: 10000 },
@@ -123,12 +123,112 @@ export const DEFAULT_STORIES: Story[] = [
         category: 'Emergency',
         donorCount: 25,
         isLive: false,
-        paybillNumber: '254254',
+        businessNumber: '254254',
         accountNumber: 'James Kamau',
         recentDonors: [
             { name: 'Samuel K.', amount: 1500 },
             { name: 'Jane W.', amount: 2000 },
             { name: 'Anonymous', amount: 500 }
+        ]
+    },
+    {
+        id: '6',
+        name: "Amina",
+        location: "Nairobi",
+        mediaUrl: "https://picsum.photos/seed/amina/800/600",
+        mediaType: 'image',
+        title: "Amina's Medical Journey",
+        content: "Thanks to your generous donations, Amina was able to undergo her life-saving surgery and is now recovering well at home.",
+        likes: 540,
+        comments: [],
+        date: new Date().toISOString(),
+        raised: 150000,
+        goal: 150000,
+        category: 'Medical',
+        donorCount: 120,
+        isLive: false,
+        businessNumber: '264264',
+        accountNumber: 'Amina Medical',
+        status: 'Completed',
+        spent: 150000,
+        recentDonors: [
+            { name: 'John D.', amount: 5000 },
+            { name: 'Mary S.', amount: 2000 }
+        ]
+    },
+    {
+        id: '7',
+        name: "St. John's Primary School",
+        location: "Machakos",
+        mediaUrl: "https://picsum.photos/seed/school/800/600",
+        mediaType: 'image',
+        title: "New Classrooms Built",
+        content: "With the funds raised, we successfully constructed three new classrooms, providing a safe and conducive learning environment for over 150 students who previously studied under trees.",
+        likes: 890,
+        comments: [],
+        date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        raised: 850000,
+        goal: 850000,
+        category: 'Education',
+        donorCount: 340,
+        isLive: false,
+        businessNumber: '274274',
+        accountNumber: 'St Johns School',
+        status: 'Completed',
+        spent: 850000,
+        recentDonors: [
+            { name: 'Corporate Sponsor', amount: 500000 },
+            { name: 'Local Community', amount: 100000 }
+        ]
+    },
+    {
+        id: '8',
+        name: "Kibera Women's Collective",
+        location: "Kibera, Nairobi",
+        mediaUrl: "https://picsum.photos/seed/women/800/600",
+        mediaType: 'image',
+        title: "Tailoring Business Launched",
+        content: "The collective received sewing machines and materials. They are now producing school uniforms for local children and generating a sustainable income for 20 families.",
+        likes: 420,
+        comments: [],
+        date: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+        raised: 320000,
+        goal: 300000,
+        category: 'Business',
+        donorCount: 185,
+        isLive: false,
+        businessNumber: '284284',
+        accountNumber: 'Kibera Women',
+        status: 'Completed',
+        spent: 300000,
+        recentDonors: [
+            { name: 'Sarah W.', amount: 15000 },
+            { name: 'Peter K.', amount: 5000 }
+        ]
+    },
+    {
+        id: '9',
+        name: "Makueni Drought Relief",
+        location: "Makueni",
+        mediaUrl: "https://picsum.photos/seed/water/800/600",
+        mediaType: 'image',
+        title: "Emergency Food Distribution",
+        content: "During the severe drought, your donations helped us distribute emergency food rations and clean water to 500 vulnerable households, saving countless lives.",
+        likes: 1200,
+        comments: [],
+        date: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+        raised: 1200000,
+        goal: 1000000,
+        category: 'Emergency',
+        donorCount: 850,
+        isLive: false,
+        businessNumber: '294294',
+        accountNumber: 'Makueni Relief',
+        status: 'Completed',
+        spent: 1200000,
+        recentDonors: [
+            { name: 'Anonymous', amount: 100000 },
+            { name: 'Diaspora Group', amount: 250000 }
         ]
     }
 ];

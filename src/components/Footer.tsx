@@ -1,6 +1,7 @@
 import React from 'react';
-import { Page } from '../types/types.ts';
+import { Page } from '../types/types';
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
+import { DEFAULT_CONTACT } from '../hook/useContact';
 
 interface FooterProps {
   setPage: (page: Page) => void;
@@ -51,15 +52,15 @@ export const Footer: React.FC<FooterProps> = ({ setPage }) => {
               <ul className="space-y-2 text-xs text-gray-400">
                 <li className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-kenya-red shrink-0" />
-                  <span>Nairobi, Kenya<br/>Westlands, P.O. Box 12345</span>
+                  <span className="whitespace-pre-line">{DEFAULT_CONTACT.address}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-kenya-green shrink-0" />
-                  <span>+254 700 123 456</span>
+                  <span>{DEFAULT_CONTACT.phone1}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-kenya-green shrink-0" />
-                  <span>info@tushindecharity.org</span>
+                  <span>{DEFAULT_CONTACT.email1}</span>
                 </li>
               </ul>
             </div>

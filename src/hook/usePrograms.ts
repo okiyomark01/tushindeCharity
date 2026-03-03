@@ -24,29 +24,38 @@ export const TEXT_COLOR_MAP: Record<string, string> = {
 export const DEFAULT_PROGRAMS: Program[] = [
     {
         id: '1',
-        title: "Medical Assistance & Healthcare",
-        description: "Access to quality healthcare is a right, not a privilege. We partner with local hospitals to fund emergency surgeries, maternal healthcare, and chronic disease management for families living below the poverty line. We also conduct free medical camps in remote rural areas.",
-        imageUrl: "https://picsum.photos/id/1005/800/800",
-        badgeText: "Health",
+        title: "Business and Economic Empowerment",
+        description: "We supply complete startup inventory and clear rent arrears for small scale vendors so they can achieve permanent financial stability. We provide substantial grants such as the 150000 KES provided to Charles Kago Mwaura in Ruiru and 150000 KES for Peter Murie in Dagoretti to launch new enterprises.",
+        imageUrl: "https://picsum.photos/seed/empowerment/800/800",
+        badgeText: "Empowerment",
+        badgeColor: "black",
+        icon: "Briefcase"
+    },
+    {
+        id: '2',
+        title: "Charity and Community Development",
+        description: "We purchase beds mattresses and essential mobility equipment for vulnerable households ensuring everyone has a safe place to rest. This includes rapid interventions like providing 36500 KES for Elizabeth Muthoni in Nakuru to purchase a wheelchair and startup capital.",
+        imageUrl: "https://picsum.photos/seed/community/800/800",
+        badgeText: "Community",
         badgeColor: "green",
         icon: "Heart"
     },
     {
-        id: '2',
-        title: "Education Scholarship Fund",
-        description: "We believe education is the key to breaking the cycle of poverty. Our scholarship program covers school fees, uniforms, and books for bright, needy students in secondary schools and universities. We also mentor students to help them achieve their career goals.",
-        imageUrl: "https://picsum.photos/id/1011/800/800",
+        id: '3',
+        title: "Education Support",
+        description: "We settle school fee balances and provide student upkeep to keep the next generation in classrooms where they belong. We deploy large scale support like the 60000 KES provided to the Githunguri CBO to cover school fees for students living with disabilities.",
+        imageUrl: "https://picsum.photos/seed/education/800/800",
         badgeText: "Education",
         badgeColor: "red",
         icon: "GraduationCap"
     },
     {
-        id: '3',
-        title: "Economic Empowerment",
-        description: "We provide micro-grants and zero-interest loans to women and youth to start small businesses. From poultry farming to tailoring shops, these enterprises provide sustainable income for families, reducing dependency on aid.",
-        imageUrl: "https://picsum.photos/id/1059/800/800",
-        badgeText: "Empowerment",
-        badgeColor: "black",
-        icon: "Briefcase"
+        id: '4',
+        title: "Critical Medical Relief",
+        description: "We cover urgent pharmacy bills hospital procedures and vital health insurance payments to protect the wellbeing of our community. This includes covering emergency medications such as the 30450 KES disbursed for Mercy Karwira in Nyeri.",
+        imageUrl: "https://picsum.photos/seed/health/800/800",
+        badgeText: "Health",
+        badgeColor: "green",
+        icon: "AlertCircle"
     }
 ];

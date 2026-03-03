@@ -1,7 +1,8 @@
 import React from 'react';
-import { Page } from '../types/types.ts';
-import { ArrowRight, Heart, GraduationCap, Briefcase } from 'lucide-react';
+import { Page } from '../types/types';
+import { ArrowRight, Heart } from 'lucide-react';
 import { Stories } from './Stories';
+import { DEFAULT_PROGRAMS, ICON_MAP, TEXT_COLOR_MAP } from '../hook/usePrograms';
 
 interface HomeProps {
     setPage: (page: Page) => void;
@@ -15,7 +16,13 @@ export const Home: React.FC<HomeProps> = ({ setPage, onStoryStateChange }) => {
             <Stories
                 setPage={setPage}
                 limit={6}
-                title="From hope to action. From struggle to strength. Tushinde."
+                title={
+                    <>
+                        <span className="block text-xl sm:text-4xl font-bold text-gray-900 mb-0.5 sm:mb-2 tracking-tight">Twende Tusaidie Tushinde</span>
+                        <span className="block text-sm sm:text-xl font-semibold text-kenya-green mb-1.5 sm:mb-2">Direct Support For Kenyan Families</span>
+                        <span className="block text-[13px] sm:text-base text-gray-600 font-normal max-w-2xl mx-auto leading-snug sm:leading-relaxed">We transform real Kenyan struggles into immediate community action and verifiable support.</span>
+                    </>
+                }
                 showDonateButton={true}
                 onStoryStateChange={onStoryStateChange}
             />
@@ -55,45 +62,28 @@ export const Home: React.FC<HomeProps> = ({ setPage, onStoryStateChange }) => {
                         <div className="w-24 h-1 bg-kenya-green mx-auto rounded-full"></div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-8">
-                        {/* Card 1 */}
-                        <div
-                            onClick={() => setPage(Page.PROGRAMS)}
-                            className="bg-white p-4 md:p-8 rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-shadow cursor-pointer group"
-                        >
-                            <div className="bg-green-100 w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-4 md:mb-6 group-hover:bg-kenya-green transition-colors">
-                                <Heart className="w-5 h-5 md:w-7 md:h-7 text-kenya-green group-hover:text-white" />
-                            </div>
-                            <h3 className="text-sm md:text-xl font-bold mb-2 md:mb-3 leading-tight">Medical Assistance</h3>
-                            <p className="text-xs md:text-base text-gray-600 mb-3 md:mb-4 line-clamp-3 md:line-clamp-none">Providing emergency surgeries, treatments, and ongoing care for those who cannot afford it.</p>
-                            <span className="text-kenya-green font-semibold flex items-center text-xs md:text-sm">Learn more <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1" /></span>
-                        </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
+                        {DEFAULT_PROGRAMS.map((program) => {
+                            const IconComponent = ICON_MAP[program.icon] || Heart;
+                            const bgClass = program.badgeColor === 'green' ? 'bg-green-100' : program.badgeColor === 'red' ? 'bg-red-100' : 'bg-gray-100';
+                            const textClass = TEXT_COLOR_MAP[program.badgeColor] || 'text-gray-800';
+                            const groupHoverBgClass = program.badgeColor === 'green' ? 'group-hover:bg-kenya-green' : program.badgeColor === 'red' ? 'group-hover:bg-kenya-red' : 'group-hover:bg-gray-900';
 
-                        {/* Card 2 */}
-                        <div
-                            onClick={() => setPage(Page.PROGRAMS)}
-                            className="bg-white p-4 md:p-8 rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-shadow cursor-pointer group"
-                        >
-                            <div className="bg-red-100 w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-4 md:mb-6 group-hover:bg-kenya-red transition-colors">
-                                <GraduationCap className="w-5 h-5 md:w-7 md:h-7 text-kenya-red group-hover:text-white" />
-                            </div>
-                            <h3 className="text-sm md:text-xl font-bold mb-2 md:mb-3 leading-tight">Education Support</h3>
-                            <p className="text-xs md:text-base text-gray-600 mb-3 md:mb-4 line-clamp-3 md:line-clamp-none">School fees, uniforms, and supplies to ensure every child stays in school and builds a future.</p>
-                            <span className="text-kenya-red font-semibold flex items-center text-xs md:text-sm">Learn more <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1" /></span>
-                        </div>
-
-                        {/* Card 3 - Spanning 2 cols on mobile for balance */}
-                        <div
-                            onClick={() => setPage(Page.PROGRAMS)}
-                            className="bg-white p-4 md:p-8 rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-shadow cursor-pointer group col-span-2 md:col-span-1"
-                        >
-                            <div className="bg-gray-100 w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-4 md:mb-6 group-hover:bg-gray-800 transition-colors">
-                                <Briefcase className="w-5 h-5 md:w-7 md:h-7 text-gray-800 group-hover:text-white" />
-                            </div>
-                            <h3 className="text-sm md:text-xl font-bold mb-2 md:mb-3 leading-tight">Business Funding</h3>
-                            <p className="text-xs md:text-base text-gray-600 mb-3 md:mb-4 md:line-clamp-none">Micro-grants and mentorship for aspiring entrepreneurs to start sustainable small businesses.</p>
-                            <span className="text-gray-800 font-semibold flex items-center text-xs md:text-sm">Learn more <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1" /></span>
-                        </div>
+                            return (
+                                <div
+                                    key={program.id}
+                                    onClick={() => setPage(Page.PROGRAMS)}
+                                    className="bg-white p-4 md:p-8 rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-shadow cursor-pointer group flex flex-col"
+                                >
+                                    <div className={`${bgClass} w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-4 md:mb-6 ${groupHoverBgClass} transition-colors`}>
+                                        <IconComponent className={`w-5 h-5 md:w-7 md:h-7 ${textClass} group-hover:text-white transition-colors`} />
+                                    </div>
+                                    <h3 className="text-sm md:text-xl font-bold mb-2 md:mb-3 leading-tight">{program.title}</h3>
+                                    <p className="text-xs md:text-base text-gray-600 mb-3 md:mb-4 line-clamp-3 md:line-clamp-none flex-grow">{program.description}</p>
+                                    <span className={`${textClass} font-semibold flex items-center text-xs md:text-sm mt-auto`}>Learn more <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1" /></span>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </section>

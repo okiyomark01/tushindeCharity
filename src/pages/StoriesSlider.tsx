@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faChevronLeft,
@@ -7,8 +7,9 @@ import {
     faPlayCircle,
     faArrowRight
 } from '@fortawesome/free-solid-svg-icons';
-import '../assets/storiesslider.css';
-import {DEFAULT_STORIES} from "../hook/useStories.ts";
+import '../assets/updates.css';
+import { DEFAULT_STORIES } from '../hook/useStories';
+import type {Story} from '../types/types';
 
 interface StoriesSliderProps {
     onStorySelect?: (storyId: string) => void;
@@ -19,6 +20,29 @@ const StoriesSlider: React.FC<StoriesSliderProps> = ({ onStorySelect, onViewAllC
     const sliderRef = useRef<HTMLDivElement>(null);
     const [showLeftArrow, setShowLeftArrow] = useState(false);
     const [showRightArrow, setShowRightArrow] = useState(true);
+    const [stories, setStories] = useState<Story[]>([]);
+
+    useEffect(() => {
+        const loadStories = () => {
+            const stored = localStorage.getItem('stories');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed)) {
+                        setStories(parsed.filter(s => s.status !== 'Completed'));
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Failed to parse stories", e);
+                }
+            }
+            setStories(DEFAULT_STORIES.filter(s => s.status !== 'Completed'));
+        };
+
+        loadStories();
+        window.addEventListener('local-storage-update', loadStories);
+        return () => window.removeEventListener('local-storage-update', loadStories);
+    }, []);
 
     const scroll = (direction: 'left' | 'right') => {
         if (sliderRef.current) {
@@ -90,7 +114,7 @@ const StoriesSlider: React.FC<StoriesSliderProps> = ({ onStorySelect, onViewAllC
                     </h3>
 
                 </div>
-                <span className="stories-count">{DEFAULT_STORIES.length} stories</span>
+                <span className="stories-count">{stories.length} stories</span>
             </div>
 
             <div className="stories-slider-wrapper">
@@ -110,7 +134,7 @@ const StoriesSlider: React.FC<StoriesSliderProps> = ({ onStorySelect, onViewAllC
                     onScroll={handleScroll}
                 >
                     {/* Story Items */}
-                    {DEFAULT_STORIES.map(story => (
+                    {stories.map(story => (
                         <div
                             key={story.id}
                             className="story-item"

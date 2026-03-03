@@ -9,7 +9,9 @@ import { Stories } from './pages/Stories';
 import { Contact } from './pages/Contact';
 import { About } from './pages/About';
 import { Admin } from './pages/Admin';
-import { Page } from './types/types.ts';
+import LivesImpacted from './pages/LivesImpacted';
+import { Page } from './types/types';
+import { DEFAULT_STORIES } from './hook/useStories';
 
 // Helper to determine page from URL
 const getPageFromUrl = (): Page => {
@@ -44,6 +46,52 @@ function App() {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Merge new DEFAULT_STORIES into localStorage so dummy data appears for returning users
+  useEffect(() => {
+    const stored = localStorage.getItem('stories');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          let updated = false;
+          const parsedIds = new Set(parsed.map(s => s.id));
+
+          // Add missing stories
+          const merged = [...parsed];
+          DEFAULT_STORIES.forEach(ds => {
+            if (!parsedIds.has(ds.id)) {
+              merged.push(ds);
+              updated = true;
+            } else {
+              // Update existing default stories if they are now completed
+              const existingIndex = merged.findIndex(s => s.id === ds.id);
+              if (existingIndex !== -1 && ds.status === 'Completed' && merged[existingIndex].status !== 'Completed') {
+                merged[existingIndex] = {
+                  ...merged[existingIndex],
+                  status: 'Completed',
+                  spent: ds.spent,
+                  raised: ds.raised,
+                  category: ds.category
+                };
+                updated = true;
+              }
+            }
+          });
+
+          if (updated) {
+            localStorage.setItem('stories', JSON.stringify(merged));
+            // Dispatch a custom event so other components can update if needed
+            window.dispatchEvent(new Event('local-storage-update'));
+          }
+        }
+      } catch (e) {
+        console.error("Failed to parse stories", e);
+      }
+    } else {
+      localStorage.setItem('stories', JSON.stringify(DEFAULT_STORIES));
+    }
   }, []);
 
   // Update URL and State
@@ -97,8 +145,10 @@ function App() {
         return <Contact />;
       case Page.ABOUT:
         return <About />;
+      case Page.LIVES_IMPACTED:
+        return <LivesImpacted setPage={handlePageChange} />;
       case Page.ADMIN:
-        return <Admin isAuthenticated={isAdminAuthenticated} setIsAuthenticated={setIsAdminAuthenticated} />;
+        return <Admin isAuthenticated={isAdminAuthenticated} setIsAuthenticated={setIsAdminAuthenticated} setPage={handlePageChange} />;
       default:
         return <Home setPage={handlePageChange} onStoryStateChange={setIsStoryOpen} />;
     }
@@ -106,16 +156,20 @@ function App() {
 
   return (
       <div className="min-h-screen bg-gfm-bg font-sans text-gray-900 flex flex-col relative">
-        <Navbar
-            currentPage={currentPage}
-            setPage={handlePageChange}
-            isAdminAuthenticated={isAdminAuthenticated}
-            onLogout={handleLogout}
-        />
+        {!(currentPage === Page.ADMIN && isAdminAuthenticated) && (
+            <Navbar
+                currentPage={currentPage}
+                setPage={handlePageChange}
+                isAdminAuthenticated={isAdminAuthenticated}
+                onLogout={handleLogout}
+            />
+        )}
         <main className="flex-grow flex flex-col">
           {renderPage()}
         </main>
-        <Footer setPage={handlePageChange} />
+        {!(currentPage === Page.ADMIN && isAdminAuthenticated) && (
+            <Footer setPage={handlePageChange} />
+        )}
 
         {/* Mobile Sticky Donate Button */}
         {currentPage !== Page.DONATE && currentPage !== Page.ADMIN && currentPage !== Page.STORIES && !isStoryOpen && (

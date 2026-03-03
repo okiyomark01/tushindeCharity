@@ -45,6 +45,8 @@ export interface Story {
 
   accountNumber?: string;
   isLive?: boolean;
+  status?: 'Active' | 'Completed';
+  spent?: number;
 }
 
 export interface ApplicationForm {
@@ -108,7 +110,8 @@ export const Page = {
   DONATE: 'donate',
   STORIES: 'stories',
   CONTACT: 'contact',
-  ADMIN: 'admin'
+  ADMIN: 'admin',
+  LIVES_IMPACTED: 'lives-impacted'
 } as const;
 
 export type Page = typeof Page[keyof typeof Page];

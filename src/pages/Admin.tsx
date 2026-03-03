@@ -4,9 +4,10 @@ import {
     LayoutGrid, FileText, DollarSign, Users,
     Shield, Lock,
     Pencil, Settings,
-    Menu, X, Heart
+    Menu, X, Heart, Home as HomeIcon
 } from 'lucide-react';
-import type {Story, MediaType, ApplicationForm, Donation, AboutContent, ContactContent, Program} from '../types/types';
+import {type Story, type MediaType, type ApplicationForm, type Donation,
+    type AboutContent, type ContactContent, type Program, Page} from '../types/types';
 import {DEFAULT_STORIES} from "../hook/useStories";
 import {MOCK_APPLICATIONS, MOCK_DONATIONS} from "../hook/useAdminData";
 import {DEFAULT_PROGRAMS} from "../hook/usePrograms";
@@ -15,6 +16,7 @@ import {DEFAULT_PROGRAMS} from "../hook/usePrograms";
 interface AdminProps {
     isAuthenticated: boolean;
     setIsAuthenticated: (value: boolean) => void;
+    setPage: (page: Page) => void;
 }
 
 type Tab = 'dashboard' | 'applications' | 'stories' | 'programs' | 'donations' | 'settings';
@@ -31,7 +33,7 @@ const StatCard = ({ title, value, icon: Icon, color }: { title: string; value: s
     </div>
 );
 
-export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticated }) => {
+export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticated, setPage }) => {
     // Auth State - Login Credentials only
     const [loginCreds, setLoginCreds] = useState({ username: '', password: '' });
     const [loginError, setLoginError] = useState('');
@@ -94,7 +96,7 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
 
     const [programs, setPrograms] = useState<Program[]>(() => {
         try {
-            const stored = localStorage.getItem('programs');
+            const stored = localStorage.getItem('programs_v2');
             if (stored) {
                 const parsed = JSON.parse(stored);
                 if (Array.isArray(parsed)) return parsed;
@@ -102,11 +104,33 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
         } catch (e) {
             console.error("Error parsing programs:", e);
         }
-        localStorage.setItem('programs', JSON.stringify(DEFAULT_PROGRAMS));
+        localStorage.setItem('programs_v2', JSON.stringify(DEFAULT_PROGRAMS));
         return DEFAULT_PROGRAMS;
     });
 
     const [donations] = useState<Donation[]>(MOCK_DONATIONS);
+
+    // Listen to local-storage-update event to sync stories
+    useEffect(() => {
+        const handleStorageUpdate = () => {
+            try {
+                const stored = localStorage.getItem('stories');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed)) {
+                        setStories(parsed.map((s: Partial<Story> & Record<string, unknown>) => ({
+                            ...s,
+                            businessNumber: (s.businessNumber as string) || (s.paybillNumber as string) || DEFAULT_STORIES.find(ds => ds.id === s.id)?.businessNumber || '247247'
+                        })) as Story[]);
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing stories on update:", e);
+            }
+        };
+        window.addEventListener('local-storage-update', handleStorageUpdate);
+        return () => window.removeEventListener('local-storage-update', handleStorageUpdate);
+    }, []);
 
     // UI State
     const [selectedApp, setSelectedApp] = useState<ApplicationForm | null>(null); // For modal
@@ -139,8 +163,8 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
             heroTitle: "About Tushinde Charity",
             heroSubtitle: "Driven by compassion, fueled by integrity, and sustained by the community.",
             missionTitle: "Our Mission & Vision",
-            contentParagraph1: "Tushinde (Swahili for \"Let Us Overcome\") was founded on a simple principle: that every Kenyan deserves a chance at a dignified life, regardless of their background.",
-            contentParagraph2: "Our mission is to bridge the gap between resources and need. We envision a Kenya where no child drops out of school due to fees, no patient is turned away from a hospital due to lack of funds, and every entrepreneur has the capital to start.",
+            contentParagraph1: "Tushinde Charity is a revolutionary community movement. We exist to leverage the power of Kenyans and people everywhere through social media mainstream media and partnerships to raise funds and help charitable causes around the world. We believe that when the world comes together in true cohesion ordinary stories become extraordinary wins. We turn real family stories into real action with respect speed and heart. We do not just help. We stand together.\n\nTwende Tusaidie Tushinde.",
+            contentParagraph2: "A united Kenya where families win together through rapid intervention and genuine community support.",
             imageUrl: "https://picsum.photos/id/1025/600/400"
         };
     });
@@ -289,6 +313,10 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                         gallery: newStory.gallery || s.gallery || [],
                         businessNumber: newStory.businessNumber || s.businessNumber,
                         accountNumber: newStory.accountNumber || s.accountNumber,
+                        status: newStory.status || s.status || 'Active',
+                        spent: newStory.spent !== undefined ? newStory.spent : s.spent,
+                        raised: newStory.raised !== undefined ? newStory.raised : s.raised,
+                        goal: newStory.goal !== undefined ? newStory.goal : s.goal,
                     } as Story;
                 }
                 return s;
@@ -313,10 +341,12 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                 comments: [],
                 date: new Date().toISOString(),
                 gallery: newStory.gallery || [],
-                raised: 0,
-                goal: 100000,
-                category: 'Community',
-                donorCount: 0
+                raised: newStory.raised || 0,
+                goal: newStory.goal || 100000,
+                category: newStory.category || 'Community',
+                donorCount: 0,
+                status: newStory.status || 'Active',
+                spent: newStory.spent || 0,
             };
             const updatedStories = [story, ...stories];
             setStories(updatedStories);
@@ -464,7 +494,7 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
     return (
         <div className="bg-gray-100 flex flex-col md:flex-row items-start min-h-screen">
             {/* Mobile Header */}
-            <div className="md:hidden bg-gray-900 text-white p-4 flex justify-between items-center shadow-md z-50 sticky top-20 w-full">
+            <div className="md:hidden bg-gray-900 text-white p-4 flex justify-between items-center shadow-md z-50 sticky top-0 w-full">
                 <button
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     className="p-2 hover:bg-gray-800 rounded-lg transition-colors focus:outline-none"
@@ -489,8 +519,8 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
             {/* Sidebar */}
             <aside className={`
                 bg-gray-900 text-white flex-shrink-0 flex flex-col transition-all duration-300 ease-in-out
-                fixed md:sticky top-0 md:top-20 h-full md:h-[calc(100vh-5rem)] z-40 md:z-auto
-                w-1/2 md:w-64 pt-40 md:pt-0
+                fixed md:sticky top-0 h-full md:h-screen z-40 md:z-auto
+                w-1/2 md:w-64 pt-20 md:pt-0
                 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
                 md:flex md:overflow-y-auto shadow-2xl md:shadow-none
             `}>
@@ -502,6 +532,12 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2">
+                    <button
+                        onClick={() => setPage(Page.HOME)}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-gray-400 hover:text-white hover:bg-gray-800"
+                    >
+                        <HomeIcon className="w-5 h-5 flex-shrink-0" /> Home
+                    </button>
                     <button
                         onClick={() => handleNavClick('dashboard')}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'dashboard' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
@@ -800,6 +836,15 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                                     </select>
                                     <input type="text" placeholder="Business Number" className="border p-2 rounded" value={newStory.businessNumber || ''} onChange={e => setNewStory({...newStory, businessNumber: e.target.value})} />
                                     <input type="text" placeholder="Account Number" className="border p-2 rounded" value={newStory.accountNumber || ''} onChange={e => setNewStory({...newStory, accountNumber: e.target.value})} />
+                                    <select className="border p-2 rounded" value={newStory.status || 'Active'} onChange={e => setNewStory({...newStory, status: e.target.value as 'Active' | 'Completed'})}>
+                                        <option value="Active">Active</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
+                                    {newStory.status === 'Completed' && (
+                                        <input type="number" placeholder="Amount Spent" className="border p-2 rounded" value={newStory.spent || ''} onChange={e => setNewStory({...newStory, spent: Number(e.target.value)})} />
+                                    )}
+                                    <input type="number" placeholder="Amount Raised" className="border p-2 rounded" value={newStory.raised || ''} onChange={e => setNewStory({...newStory, raised: Number(e.target.value)})} />
+                                    <input type="number" placeholder="Goal Amount" className="border p-2 rounded" value={newStory.goal || ''} onChange={e => setNewStory({...newStory, goal: Number(e.target.value)})} />
                                 </div>
                                 <textarea placeholder="Story Content..." rows={4} className="w-full border p-2 rounded" value={newStory.content || ''} onChange={e => setNewStory({...newStory, content: e.target.value})} />
 
@@ -842,6 +887,18 @@ export const Admin: React.FC<AdminProps> = ({ isAuthenticated, setIsAuthenticate
                             {stories.map(story => (
                                 <div key={story.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden relative group">
                                     <img src={story.mediaUrl} className="w-full h-48 object-cover" alt={story.title} />
+
+                                    {/* Status Badge */}
+                                    <div className="absolute top-3 right-3">
+                                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-md ${
+                                            story.status === 'Completed'
+                                                ? 'bg-green-500/90 text-white border border-green-400/50'
+                                                : 'bg-blue-500/90 text-white border border-blue-400/50'
+                                        }`}>
+                                            {story.status || 'Active'}
+                                        </span>
+                                    </div>
+
                                     <div className="p-4">
                                         <h4 className="font-bold text-lg mb-1">{story.title}</h4>
                                         <p className="text-sm text-gray-500 mb-4">{story.name} • {story.location}</p>
