@@ -19,7 +19,7 @@ export const Home: React.FC<HomeProps> = ({ setPage, onStoryStateChange }) => {
                 title={
                     <>
                         <span className="block text-xl sm:text-4xl font-bold text-gray-900 mb-0.5 sm:mb-2 tracking-tight">Twende Tusaidie Tushinde</span>
-                        <span className="block text-sm sm:text-xl font-semibold text-kenya-green mb-1.5 sm:mb-2">Direct Support For Kenyan Families</span>
+                        {/*<span className="block text-sm sm:text-xl font-semibold text-kenya-green mb-1.5 sm:mb-2">Direct Support For Kenyan Families</span>*/}
                         <span className="block text-[13px] sm:text-base text-gray-600 font-normal max-w-2xl mx-auto leading-snug sm:leading-relaxed">We transform real Kenyan struggles into immediate community action and verifiable support.</span>
                     </>
                 }
